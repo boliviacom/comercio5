@@ -1,0 +1,428 @@
+#modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+body.dark {
+    /* Fondo y Colores Generales */
+    --bg-color-main: #121212;
+    --text-color-main: #E0E0E0;
+    --text-color-light: #f8f8f8;
+
+    /* Colores del Tema */
+    --secondary-color: #1E1E1E;
+    /* Fondo principal de la sidebar */
+
+    /* Estilos del Contenido Principal */
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
+}
+
+.filter-controls-container {
+    background-color: var(--bg-color-main);
+}
+
+body.dark .main-content h1 {
+    color: var(--primary-color);
+}
+
+body.dark .data-table thead th {
+    background-color: #2c2c2c;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.dark .data-table {
+    background-color: #242424;
+    border: 1px solid #333;
+}
+
+body.dark .data-table th,
+body.dark .data-table td {
+    color: var(--text-color-main);
+    border-bottom: 1px solid #333;
+}
+
+body.dark .table-responsive {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .data-table tbody tr:hover {
+    /* Usar un color ligeramente más claro que el fondo de la tabla para destacar */
+    background-color: #313131;
+}
+
+/* Asegúrate de que las filas inactivas no tengan hover visualmente */
+body.dark .data-table tr.inactive-record:hover {
+    background-color: #ffeaea;
+    /* Mantiene el color de la fila inactiva */
+}
+
+/* Modal y Formularios en Dark Mode */
+body.dark .modal-content {
+    background-color: #2c2c2c;
+    color: var(--text-color-main);
+}
+
+body.dark .form-group label {
+    color: var(--text-color-main);
+}
+
+body.dark .modal-content input:not([type="file"]):not([type="hidden"]),
+body.dark .modal-content textarea,
+body.dark .modal-content .input-select,
+body.dark .input-text-search {
+    /* AÑADIDO: .input-text-search */
+    /* Usamos el color secundario como fondo del INPUT */
+    background-color: var(--secondary-color);
+    border: 1px solid #444;
+    color: var(--text-color-main);
+}
+
+/* --- TEMA OSCURO (Dark Mode) --- */
+
+body.dark .modal-content input::placeholder,
+body.dark .input-text-search::placeholder,
+body.dark .modal-content textarea::placeholder {
+    /* Usar un gris muy claro para el texto del placeholder en fondo oscuro */
+    color: #a0a0a0;
+    background-color: var(--secondary-color);
+}
+
+body.dark .btn-cancel-modal {
+    background-color: #555;
+    color: #fff;
+}
+
+body.dark .btn-cancel-modal:hover {
+    background-color: #666;
+}
+
+#modal-title {
+    color: var(--text-color-main);
+}
+
+/* --- TEMA AZUL (Ocean Blue) --- */
+body.blue {
+    /* Fondo y Colores Generales */
+    --primary-color: #00BFA5;
+    /* Acento Aqua/Turquesa */
+    --secondary-color: #1A237E;
+    /* Azul Índigo para la sidebar */
+    --hover-color: #3949AB;
+    /* Azul más claro para hover */
+    --text-color-main: #263238;
+
+    /* Estilos del Contenido Principal */
+    background-color: #E3F2FD;
+    /* Fondo muy claro */
+    color: var(--text-color-main);
+}
+
+body.blue .main-content h1 {
+    color: var(--secondary-color);
+}
+
+body.blue .data-table thead th {
+    background-color: #BBDEFB;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* --- Estilos para el Modal de Personalización --- */
+
+#personalization-modal-title {
+    color: var(--primary-color);
+    border-bottom: none;
+}
+
+.theme-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+.theme-options h4 {
+    width: 100%;
+    margin-bottom: 5px;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.theme-btn {
+    padding: 12px 20px;
+    border: 2px solid var(--primary-color);
+    background-color: #f7f7f7;
+    color: var(--secondary-color);
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: 600;
+    flex-grow: 1;
+    min-width: 120px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.theme-btn[data-theme="default"] {
+    /* Colores base para el botón Default */
+    border-color: #80CC28;
+    color: #17542A;
+}
+
+.theme-btn[data-theme="dark"] {
+    /* Colores para el botón Dark */
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+}
+
+.theme-btn[data-theme="blue"] {
+    /* Colores para el botón Blue */
+    border-color: #1A237E;
+    color: #1A237E;
+}
+.theme-btn[data-theme="gold"] {
+    /* Colores para el botón Blue */
+    border-color: #1A237E;
+    color: #1A237E;
+}
+
+/* Hover y Estado Activo */
+.theme-btn:hover {
+    opacity: 0.8;
+}
+
+.theme-btn.active-theme {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* --- TEMA AZUL (Ocean Blue) --- (Adiciones) */
+
+body.blue .sidebar {
+    background-color: var(--secondary-color);
+    /* #1A237E */
+}
+
+body.blue .sidebar a:hover {
+    background-color: var(--hover-color);
+    /* #3949AB */
+}
+
+body.blue .main-content h1 {
+    color: var(--secondary-color);
+}
+
+/* Estilos para Modales en Ocean Blue */
+body.blue .modal-content {
+    background-color: #ffffff;
+    /* Fondo blanco para modales */
+    color: var(--text-color-main);
+}
+
+body.blue .form-group label {
+    color: var(--text-color-main);
+}
+
+body.blue .modal-content input:not([type="file"]):not([type="hidden"]),
+body.blue .modal-content textarea,
+body.blue .modal-content .input-select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: var(--text-color-main);
+}
+
+body.blue .btn-primary-modal {
+    background-color: var(--primary-color);
+}
+
+body.blue .btn-primary-modal:hover {
+    background-color: var(--hover-color);
+}
+
+body.blue .data-table tbody tr:hover {
+    /* Usar un tono muy suave de azul claro para el hover */
+    background-color: #E8F5FF;
+}
+
+/* --- TEMA ORO (Gold) --- */
+body.gold {
+    /* Fondo y Colores Generales */
+    --primary-color: #FFC107;
+    /* Bright Gold */
+    --secondary-color: #5D4037;
+    /* Deep Brown (Sidebar) */
+    --hover-color: #795548;
+    /* Lighter Brown */
+    --bg-color-main: #FFF8E1;
+    /* Light Cream */
+    --text-color-main: #212121;
+    /* Dark Text */
+
+    /* Estilos del Contenido Principal */
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
+}
+
+body.gold .sidebar {
+    background-color: var(--secondary-color);
+}
+
+body.gold .sidebar a:hover {
+    background-color: var(--hover-color);
+}
+
+body.gold .main-content h1 {
+    color: var(--secondary-color);
+}
+
+body.gold .data-table thead th {
+    background-color: #FFE082;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.gold .data-table tbody tr:hover {
+    background-color: #FFFDE7;
+}
+
+body.gold .modal-content {
+    background-color: #ffffff;
+}
+
+body.gold .modal-content input:not([type="file"]):not([type="hidden"]),
+body.gold .modal-content textarea,
+body.gold .modal-content .input-select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: var(--text-color-main);
+}
+
+body.gold .theme-btn[data-theme="gold"] {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+
+/* --- TEMA MAGENTA --- */
+body.magenta {
+    /* Fondo y Colores Generales */
+    --primary-color: #E91E63;
+    /* Vibrant Magenta */
+    --secondary-color: #880E4F;
+    /* Deep Purple-Pink (Sidebar) */
+    --hover-color: #C2185B;
+    /* Darker Magenta */
+    --bg-color-main: #FCE4EC;
+    /* Light Pink */
+    --text-color-main: #4A148C;
+    /* Dark Purple Text */
+
+    /* Estilos del Contenido Principal */
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
+}
+
+body.magenta .sidebar {
+    background-color: var(--secondary-color);
+}
+
+body.magenta .sidebar a:hover {
+    background-color: var(--hover-color);
+}
+
+body.magenta .main-content h1 {
+    color: var(--secondary-color);
+}
+
+body.magenta .data-table thead th {
+    background-color: #F8BBD0;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.magenta .data-table tbody tr:hover {
+    background-color: #ff9db7;
+}
+
+body.magenta .modal-content {
+    background-color: #ffffff;
+}
+
+body.magenta .modal-content input:not([type="file"]):not([type="hidden"]),
+body.magenta .modal-content textarea,
+body.magenta .modal-content .input-select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: var(--text-color-main);
+}
+
+body.magenta .theme-btn[data-theme="magenta"] {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+/* --- TEMA VERDE BOSQUE (Forest Green) --- */
+body.forest-green {
+    /* Fondo y Colores Generales */
+    --primary-color: #8BC34A;
+    /* Light/Leaf Green */
+    --secondary-color: #1B5E20;
+    /* Deep Forest Green (Sidebar) */
+    --hover-color: #388E3C;
+    /* Moss Green */
+    --bg-color-main: #F1F8E9;
+    /* Light Green */
+    --text-color-main: #1B5E20;
+    /* Dark Green Text */
+
+    /* Estilos del Contenido Principal */
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
+}
+
+body.forest-green .sidebar {
+    background-color: var(--secondary-color);
+}
+
+body.forest-green .sidebar a:hover {
+    background-color: var(--hover-color);
+}
+
+body.forest-green .main-content h1 {
+    color: var(--secondary-color);
+}
+
+body.forest-green .data-table thead th {
+    background-color: #DCEDC8;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.forest-green .data-table tbody tr:hover {
+    background-color: #F7FFF0;
+}
+
+body.forest-green .modal-content {
+    background-color: #ffffff;
+}
+
+body.forest-green .modal-content input:not([type="file"]):not([type="hidden"]),
+body.forest-green .modal-content textarea,
+body.forest-green .modal-content .input-select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: var(--text-color-main);
+}
+
+body.forest-green .theme-btn[data-theme="forest-green"] {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}

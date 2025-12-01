@@ -1,0 +1,155 @@
+:root {
+    --color-primary-green: #80CC28;
+    --color-hover-green: rgb(79, 134, 15);
+    --color-active-green: #17542A;
+    --color-text-dark: #333333;
+    --color-background: #F0FFF0;
+    --color-gray-label: #4B5563;
+    --color-input-border: #D1D5DB;
+    --color-error-red: #EF4444;
+    --color-error-red-hover: #DC2626;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+body {
+    background-color: var(--color-background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+section {
+    width: 100%;
+    max-width: 448px;
+    margin: auto;
+}
+
+#auth-view {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--color-primary-green);
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+p {
+    text-align: center;
+    color: var(--color-text-dark);
+    margin-bottom: 24px;
+}
+
+#login-form>div {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-gray-label);
+    margin-bottom: 4px;
+}
+
+input[type="email"],
+input[type="password"],
+input[type="text"] { 
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 4px;
+    border: 1px solid var(--color-input-border);
+    border-radius: 6px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    color: var(--color-text-dark);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus { 
+    outline: none;
+    border-color: var(--color-primary-green);
+    box-shadow: 0 0 0 3px rgba(128, 204, 40, 0.5);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 10px 16px;
+    background-color: var(--color-primary-green);
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.15s ease;
+    margin-top: 16px;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-hover-green);
+}
+
+.btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(23, 84, 42, 0.5);
+}
+
+#success-message {
+    display: none;
+    text-align: center;
+    padding: 24px;
+}
+
+#success-message.visible {
+    display: block;
+}
+
+#success-message .title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-active-green);
+    margin-bottom: 12px;
+}
+
+#success-message .subtitle {
+    color: var(--color-gray-label);
+}
+
+.btn-logout {
+    margin-top: 16px;
+    padding: 4px 12px;
+    background-color: var(--color-error-red);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.btn-logout:hover {
+    background-color: var(--color-error-red-hover);
+}
+
+@media (max-width: 650px) {
+    #auth-view {
+        padding: 24px;
+    }
+}

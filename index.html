@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión Administrador</title>
+    <link rel="stylesheet" href="css/inicio_sesion.css">
+</head>
+
+<body>
+    <section>
+        <div id="auth-view">
+            <h1>
+                Vegan Products
+            </h1>
+            <p>Iniciar Sesión para la Administración</p>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label for="login-email">Correo Electrónico</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <label for="password" class="label">Contraseña:</label>
+                <div style="position: relative;">
+                    <input type="password" id="password" class="input" required>
+                    <span onclick="togglePassword()"
+                        style="position: absolute; right: 10px; top: 40%; transform: translateY(-50%); cursor: pointer; height: 24px; width: 24px; display: flex; align-items: center; justify-content: center;">
+                        <img id="eye-open" src="imagenes/ojo_abierto.png" alt="ojo abierto"
+                            style="max-width: 100%; max-height: 100%; display: block;">
+                        <img id="eye-closed" src="imagenes/ojo_cerrado.png" alt="ojo cerrado"
+                            style="max-width: 100%; max-height: 100%; display: none;">
+                    </span>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    Ingresar
+                </button>
+            </form>
+        </div>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script type="module" src="js/authManager.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
