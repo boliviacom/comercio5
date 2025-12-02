@@ -5,30 +5,30 @@ import { RolesService } from './services/RolesService.js';
 export class ColumnVisibilityManager {
     constructor() {
         this.currentUserId = null;
-        this.currentRoleId = 'admin';
+        this.currentRoleId = 'admin'; //
 
         this.availableRoles = [];
-        this.availableColumns = this.getColumnsForTable('producto');
+        this.availableColumns = this.getColumnsForTable('producto'); //
 
         this.currentRoleConfigs = {};
         this.currentConfigId = null;
     }
 
     getColumnsForTable(tableName) {
-        const config = REPORT_CONFIG[tableName];
-        if (!config || !config.fields || !config.headers) {
-            return [];
+        const config = REPORT_CONFIG[tableName]; //
+        if (!config || !config.fields || !config.headers) { //
+            return []; //
         }
-        return config.fields.map((fieldId, index) => ({
-            id: fieldId,
-            label: config.headers[index],
-            defaultVisible: true
+        return config.fields.map((fieldId, index) => ({ //
+            id: fieldId, //
+            label: config.headers[index], //
+            defaultVisible: true //
         }));
     }
 
     _renderColumnSwitches(visibleColumnIds) {
-        return this.availableColumns.map(col => {
-            const isChecked = visibleColumnIds.includes(col.id) ? 'checked' : '';
+        return this.availableColumns.map(col => { //
+            const isChecked = visibleColumnIds.includes(col.id) ? 'checked' : ''; //
             return `
                 <div class="column-switch-item">
                     <span class="column-label">${col.label}</span>
@@ -42,45 +42,49 @@ export class ColumnVisibilityManager {
     }
 
     async renderPanel(tableName) {
-        this.availableColumns = this.getColumnsForTable(tableName);
-        if (this.availableColumns.length === 0) {
+        this.availableColumns = this.getColumnsForTable(tableName); //
+        if (this.availableColumns.length === 0) { //
             return `<div class="error-message">Configuración de tabla no encontrada o incompleta para: ${tableName}.</div>`;
         }
 
-        this.availableRoles = await RolesService.getAllRoles();
+        this.availableRoles = await RolesService.getAllRoles(); //
 
-        if (this.availableRoles.length === 0 && this.currentRoleId) {
-            this.availableRoles = [{ id: this.currentRoleId, name: this.currentRoleId.toUpperCase() }];
-        } else if (this.availableRoles.length > 0) {
-            if (!this.availableRoles.some(r => r.id === this.currentRoleId)) {
-                this.currentRoleId = this.availableRoles[0].id;
+        if (this.availableRoles.length === 0 && this.currentRoleId) { //
+            this.availableRoles = [{ id: this.currentRoleId, name: this.currentRoleId.toUpperCase() }]; //
+        } else if (this.availableRoles.length > 0) { //
+            if (!this.availableRoles.some(r => r.id === this.currentRoleId)) { //
+                this.currentRoleId = this.availableRoles[0].id; //
             }
         }
 
-        const initialConfig = await this.loadConfigFromDB(tableName, this.currentRoleId, this.currentUserId);
-        const initialVisibleIds = initialConfig.columnas_visibles;
-        this.currentConfigId = initialConfig.id;
+        const initialConfig = await this.loadConfigFromDB(tableName, this.currentRoleId, this.currentUserId); //
+        const initialVisibleIds = initialConfig.columnas_visibles; //
+        this.currentConfigId = initialConfig.id; //
 
-        const roleOptionsHTML = this.availableRoles.map(role =>
+        const roleOptionsHTML = this.availableRoles.map(role => //
             `<option value="${role.id}" ${role.id === this.currentRoleId ? 'selected' : ''}>${role.name}</option>`
         ).join('');
 
-        const initialColumnSwitchesHTML = this._renderColumnSwitches(initialVisibleIds);
+        const initialColumnSwitchesHTML = this._renderColumnSwitches(initialVisibleIds); //
 
-        const currentRoleName = this.availableRoles.find(r => r.id === this.currentRoleId)?.name || 'N/A';
+        const currentRoleName = this.availableRoles.find(r => r.id === this.currentRoleId)?.name || 'N/A'; //
+
+        // --- INICIO DE AJUSTE: Formato del Nombre de la Tabla para el Título ---
+        const formattedTableName = tableName.charAt(0).toUpperCase() + tableName.slice(1).replace(/_/g, ' ');
 
         return `
             <div id="column-visibility-manager-container" class="config-modal-body">
                 <div class="config-header">
-                    <h2 class="config-title">Gestión de Visibilidad de Columnas</h2>
-                    <p class="config-instruction">Seleccione un rol para configurar las columnas visibles en la tabla de productos.</p>
+                    <h2 class="config-title">Gestión de Visibilidad de Columnas: ${formattedTableName}</h2>
+                    <p class="config-instruction">Seleccione un rol para configurar las columnas visibles en la tabla de ${formattedTableName}.</p>
                 </div>
 
                 <div class="config-content-wrapper">
                     <div class="config-controls-side">
-                        <h3>Configurar para:</h3>
+                        <h3 class="config-section-title">Configuración de Roles y Usuarios</h3>
 
-                        <div class="form-group mb-4">
+                        <div class="control-group">
+                            <label class="control-label">Aplicar a Rol:</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user-shield"></i></span>
                                 <select id="role-select" class="form-control-select">
@@ -89,11 +93,12 @@ export class ColumnVisibilityManager {
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="control-group">
+                            <label class="control-label">Anulación por Usuario (Opcional):</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-user"></i></span>
                                 <select id="user-select" class="form-control-select" disabled>
-                                    <option value="">Seleccionar Usuario (Opcional)</option>
+                                    <option value="">Seleccionar Usuario...</option>
                                 </select>
                             </div>
                         </div>
@@ -106,7 +111,7 @@ export class ColumnVisibilityManager {
 
                     <div class="column-list-side">
                         <div class="column-list-header">
-                            <h3>Columnas de la Tabla de Productos</h3>
+                            <h3 class="config-section-title">Columnas de la Tabla de ${formattedTableName}</h3>
                             <a href="#" id="select-all-columns" class="select-all-link">Seleccionar todas</a>
                         </div>
 
@@ -127,92 +132,92 @@ export class ColumnVisibilityManager {
     }
 
     async loadConfigFromDB(tableName, roleId, userId = null) {
-        const configResult = await ColConfigService.getConfig(tableName, roleId, userId);
+        const configResult = await ColConfigService.getConfig(tableName, roleId, userId); //
 
-        if (configResult) {
-            return configResult;
+        if (configResult) { //
+            return configResult; //
         } else {
-            const defaultColumns = this.getColumnsForTable(tableName).map(c => c.id);
-            return {
-                id: null,
-                columnas_visibles: defaultColumns
+            const defaultColumns = this.getColumnsForTable(tableName).map(c => c.id); //
+            return { //
+                id: null, //
+                columnas_visibles: defaultColumns //
             };
         }
     }
 
     async initializePanelListeners() {
-        const roleSelect = document.getElementById('role-select');
-        const selectedRoleNameSpan = document.getElementById('selected-role-name');
-        const selectAllLink = document.getElementById('select-all-columns');
-        const columnSwitchesList = document.getElementById('column-switches-list');
-        const saveButton = document.getElementById('save-config-btn');
-        const cancelButton = document.getElementById('cancel-config-btn');
-        const modal = document.getElementById('crud-modal');
+        const roleSelect = document.getElementById('role-select'); //
+        const selectedRoleNameSpan = document.getElementById('selected-role-name'); //
+        const selectAllLink = document.getElementById('select-all-columns'); //
+        const columnSwitchesList = document.getElementById('column-switches-list'); //
+        const saveButton = document.getElementById('save-config-btn'); //
+        const cancelButton = document.getElementById('cancel-config-btn'); //
+        const modal = document.getElementById('crud-modal'); //
 
-        const tableName = 'producto';
+        const tableName = 'producto'; //
 
-        if (roleSelect && selectedRoleNameSpan && columnSwitchesList) {
-            roleSelect.addEventListener('change', async (e) => {
-                const selectedRole = e.target.value;
-                const roleName = e.target.options[e.target.selectedIndex].text;
-                selectedRoleNameSpan.textContent = roleName;
+        if (roleSelect && selectedRoleNameSpan && columnSwitchesList) { //
+            roleSelect.addEventListener('change', async (e) => { //
+                const selectedRole = e.target.value; //
+                const roleName = e.target.options[e.target.selectedIndex].text; //
+                selectedRoleNameSpan.textContent = roleName; //
 
-                const config = await this.loadConfigFromDB(tableName, selectedRole, null);
-                this.currentConfigId = config.id;
-                this.updateSwitches(config.columnas_visibles);
+                const config = await this.loadConfigFromDB(tableName, selectedRole, null); //
+                this.currentConfigId = config.id; //
+                this.updateSwitches(config.columnas_visibles); //
             });
         } else {
-            console.error("ColumnVisibilityManager: No se pudo encontrar el SELECT o SPAN del rol.");
+            console.error("ColumnVisibilityManager: No se pudo encontrar el SELECT o SPAN del rol."); //
         }
 
-        if (selectAllLink && columnSwitchesList) {
-            selectAllLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                columnSwitchesList.querySelectorAll('.column-toggle').forEach(switchInput => {
-                    switchInput.checked = true;
+        if (selectAllLink && columnSwitchesList) { //
+            selectAllLink.addEventListener('click', (e) => { //
+                e.preventDefault(); //
+                columnSwitchesList.querySelectorAll('.column-toggle').forEach(switchInput => { //
+                    switchInput.checked = true; //
                 });
             });
         }
 
-        if (saveButton && roleSelect && modal) {
-            saveButton.addEventListener('click', async () => {
-                const currentRole = roleSelect.value;
-                const selectedColumns = Array.from(columnSwitchesList.querySelectorAll('.column-toggle'))
-                    .filter(s => s.checked)
-                    .map(s => s.getAttribute('data-column-id'));
+        if (saveButton && roleSelect && modal) { //
+            saveButton.addEventListener('click', async () => { //
+                const currentRole = roleSelect.value; //
+                const selectedColumns = Array.from(columnSwitchesList.querySelectorAll('.column-toggle')) //
+                    .filter(s => s.checked) //
+                    .map(s => s.getAttribute('data-column-id')); //
 
-                const success = await ColConfigService.saveConfig(
-                    tableName,
-                    currentRole,
-                    selectedColumns,
-                    this.currentConfigId
+                const success = await ColConfigService.saveConfig( //
+                    tableName, //
+                    currentRole, //
+                    selectedColumns, //
+                    this.currentConfigId //
                 );
 
-                if (success) {
-                    alert(`✅ Configuración para el rol '${currentRole}' guardada con éxito.`);
+                if (success) { //
+                    alert(`✅ Configuración para el rol '${currentRole}' guardada con éxito.`); //
                 } else {
-                    alert(`❌ Error al guardar la configuración para el rol '${currentRole}'.`);
+                    alert(`❌ Error al guardar la configuración para el rol '${currentRole}'.`); //
                 }
 
-                modal.classList.remove('active');
-                document.getElementById('modal-body').innerHTML = '';
+                modal.classList.remove('active'); //
+                document.getElementById('modal-body').innerHTML = ''; //
             });
         } else {
-            console.error("ColumnVisibilityManager: No se pudo encontrar el botón de guardar o elementos relacionados.");
+            console.error("ColumnVisibilityManager: No se pudo encontrar el botón de guardar o elementos relacionados."); //
         }
 
-        if (cancelButton && modal) {
-            cancelButton.addEventListener('click', () => {
-                modal.classList.remove('active');
-                document.getElementById('modal-body').innerHTML = '';
+        if (cancelButton && modal) { //
+            cancelButton.addEventListener('click', () => { //
+                modal.classList.remove('active'); //
+                document.getElementById('modal-body').innerHTML = ''; //
             });
         }
     }
 
     updateSwitches(visibleIds) {
-        const columnSwitchesList = document.getElementById('column-switches-list');
-        if (columnSwitchesList) {
-            columnSwitchesList.innerHTML = this._renderColumnSwitches(visibleIds);
+        const columnSwitchesList = document.getElementById('column-switches-list'); //
+        if (columnSwitchesList) { //
+            columnSwitchesList.innerHTML = this._renderColumnSwitches(visibleIds); //
         }
     }
 }
