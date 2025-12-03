@@ -88,13 +88,6 @@ export class ColumnConfigDashboard {
             <div id="table-selection-grid">
                 ${tableTilesHTML}
                 
-                <div class="table-tile add-new-tile">
-                    <div class="tile-icon-wrapper">
-                        <i class="fas fa-plus"></i>
-                    </div>
-                    <h4>Añadir Nueva Tabla</h4>
-                    <p>Configurar una nueva tabla para la gestión (requiere modificación en 'tableConfigs.js').</p>
-                </div>
             </div>
         `;
 
@@ -135,7 +128,7 @@ export class ColumnConfigDashboard {
         const descriptions = {
             'producto': 'Gestionar columnas como precio, stock, categoría, etc.',
             'usuario': 'Gestionar columnas como email, rol, fecha de registro, etc.',
-            'orden': 'Gestionar columnas como ID de pedido, cliente, total, estado, etc.',
+            'orden': 'Gestionar columnas como N° de pedido, cliente, total, estado, etc.',
         };
         return descriptions[tableName] || `Gestionar la visibilidad de las columnas para la tabla de ${this.formatTableName(tableName)}.`;
     }

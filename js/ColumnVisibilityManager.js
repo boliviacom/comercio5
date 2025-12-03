@@ -1,3 +1,5 @@
+// js/ColumnVisibilityManager.js
+
 import { REPORT_CONFIG } from './config/tableConfigs.js';
 import { ColConfigService } from './services/ColConfigService.js';
 import { RolesService } from './services/RolesService.js';
@@ -6,8 +8,9 @@ import { UsersService } from './services/UsersService.js';
 export class ColumnVisibilityManager {
     constructor() {
         this.currentUserId = null;
-        this.currentRoleId = ''; // Iniciar con rol vacío (opción nula)
+        this.currentRoleId = '';
         this.currentUserName = '';
+        this.tableName = '';
 
         this.availableRoles = [];
         this.availableUsers = [];
@@ -49,7 +52,6 @@ export class ColumnVisibilityManager {
 
         resultsList.innerHTML = '<li class="loading-result"><i class="fas fa-spinner fa-spin"></i> Buscando CI...</li>';
 
-        // Pasamos roleId que puede ser '' (nulo) para buscar en todos los roles
         const users = await UsersService.searchUsers(searchTerm, roleId);
 
         if (users.length === 0) {
@@ -97,10 +99,10 @@ export class ColumnVisibilityManager {
     }
 
     async renderPanel(tableName) {
-        // Reiniciar el estado de selección al abrir el modal
         this.currentUserId = null;
         this.currentUserName = '';
         this.currentRoleId = '';
+        this.tableName = tableName;
 
         this.availableColumns = this.getColumnsForTable(tableName);
         if (this.availableColumns.length === 0) {
@@ -109,12 +111,10 @@ export class ColumnVisibilityManager {
 
         this.availableRoles = await RolesService.getAllRoles();
 
-        // Cargar las columnas por defecto (roleId y userId son nulos/vacíos)
-        const initialConfig = await this.loadConfigFromDB(tableName, this.currentRoleId, this.currentUserId);
+        const initialConfig = await this.loadConfigFromDB(this.currentRoleId, this.currentUserId);
         const initialVisibleIds = initialConfig.columnas_visibles;
         this.currentConfigId = initialConfig.id;
 
-        // Opción nula para el rol
         const defaultRoleOption = '<option value="" selected>-- Seleccione un Rol --</option>';
         const roleOptionsHTML = this.availableRoles.map(role =>
             `<option value="${role.id}" ${role.id === this.currentRoleId ? 'selected' : ''}>${role.name}</option>`
@@ -124,7 +124,6 @@ export class ColumnVisibilityManager {
 
         const initialColumnSwitchesHTML = this._renderColumnSwitches(initialVisibleIds);
 
-        // El estado inicial es "Columas por defecto"
         const initialInfoText = 'Configuración por Defecto (Global)';
 
         const formattedTableName = tableName.charAt(0).toUpperCase() + tableName.slice(1).replace(/_/g, ' ');
@@ -191,23 +190,21 @@ export class ColumnVisibilityManager {
         `;
     }
 
-    async loadConfigFromDB(tableName, roleId, userId = null) {
-        // Convertir la opción vacía '' a null para el servicio
+    async loadConfigFromDB(roleId, userId = null) {
+        const tableName = this.tableName;
+
         const effectiveRoleId = roleId === '' ? null : roleId;
 
-        // 1. Intentar cargar por USUARIO (anulación)
         if (userId) {
             const configResult = await ColConfigService.getConfig(tableName, null, userId);
             if (configResult) return configResult;
         }
 
-        // 2. Intentar cargar por ROL (solo si hay un rol seleccionado)
         if (effectiveRoleId) {
             const configResult = await ColConfigService.getConfig(tableName, effectiveRoleId, null);
             if (configResult) return configResult;
         }
 
-        // 3. Devolver configuración por defecto si no se encuentra ninguna
         const defaultColumns = this.getColumnsForTable(tableName).map(c => c.id);
         return {
             id: null,
@@ -215,7 +212,7 @@ export class ColumnVisibilityManager {
         };
     }
 
-    async loadAndRefreshConfig(tableName) {
+    async loadAndRefreshConfig() {
         const roleSelect = document.getElementById('role-select');
         const userSearchInput = document.getElementById('user-search-input');
         const selectedRoleNameSpan = document.getElementById('selected-role-name');
@@ -237,7 +234,6 @@ export class ColumnVisibilityManager {
             infoText = `Anulación de Usuario: <strong>${this.currentUserName}</strong>`;
             userSearchInput.value = this.currentUserName;
             canSave = true;
-            // Si hay usuario seleccionado, deseleccionamos el rol para evitar conflictos visuales
             roleSelect.value = '';
         } else if (effectiveTargetRoleId) {
             const roleName = roleSelect.options[roleSelect.selectedIndex].text;
@@ -245,7 +241,6 @@ export class ColumnVisibilityManager {
             userSearchInput.value = '';
             canSave = true;
         } else {
-            // No hay ni usuario ni rol seleccionados.
             userSearchInput.value = '';
             canSave = false;
         }
@@ -253,8 +248,7 @@ export class ColumnVisibilityManager {
         selectedRoleNameSpan.innerHTML = infoText;
         saveButton.disabled = !canSave;
 
-        // Cargar configuración
-        const config = await this.loadConfigFromDB(tableName, roleId, effectiveUserId);
+        const config = await this.loadConfigFromDB(roleId, effectiveUserId);
         this.currentConfigId = config.id;
         this.currentRoleId = effectiveUserId ? null : roleId;
         this.currentUserId = effectiveUserId;
@@ -271,13 +265,12 @@ export class ColumnVisibilityManager {
         const cancelButton = document.getElementById('cancel-config-btn');
         const modal = document.getElementById('crud-modal');
 
-        this.loadAndRefreshConfig = this.loadAndRefreshConfig.bind(this, tableName);
+        this.loadAndRefreshConfig = this.loadAndRefreshConfig.bind(this);
 
         userSearchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value;
             this.debouncedSearch(searchTerm);
 
-            // Si el usuario comienza a escribir, limpiamos la selección previa para el override
             if (this.currentUserId !== null) {
                 this.currentUserId = null;
                 this.currentUserName = '';
@@ -286,7 +279,6 @@ export class ColumnVisibilityManager {
         });
 
         roleSelect.addEventListener('change', () => {
-            // Al cambiar el rol, limpiamos la selección de usuario
             this.currentUserId = null;
             this.currentUserName = '';
             this.loadAndRefreshConfig();
@@ -327,7 +319,7 @@ export class ColumnVisibilityManager {
 
                 let targetRoleId = null;
                 let targetUserId = null;
-                let existingId = null;
+                let existingId = this.currentConfigId;
                 let targetName = '';
                 let targetType = '';
 
@@ -335,20 +327,14 @@ export class ColumnVisibilityManager {
                     targetUserId = this.currentUserId;
                     targetName = this.currentUserName;
                     targetType = 'usuario';
-                    // Al guardar por usuario, el rol_id debe ser nulo en la BD.
-                    const existingConfig = await ColConfigService.getConfig(tableName, null, targetUserId);
-                    existingId = existingConfig ? existingConfig.id : null;
                 } else {
                     targetRoleId = roleSelect.value;
                     targetName = roleSelect.options[roleSelect.selectedIndex].text;
                     targetType = 'rol';
-                    // Al guardar por rol, el usuario_id debe ser nulo en la BD.
-                    const existingConfig = await ColConfigService.getConfig(tableName, targetRoleId, null);
-                    existingId = existingConfig ? existingConfig.id : null;
                 }
 
                 const success = await ColConfigService.saveConfig(
-                    tableName,
+                    this.tableName,
                     targetRoleId,
                     targetUserId,
                     selectedColumns,
