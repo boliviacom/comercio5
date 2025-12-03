@@ -1,29 +1,36 @@
-// js/ColumnConfigDashboard.js
-
 import { ColumnVisibilityManager } from './ColumnVisibilityManager.js';
-// 🔑 Importación necesaria para obtener la lista de tablas
 import { REPORT_CONFIG } from './config/tableConfigs.js';
 
 const MODAL_ID = 'crud-modal';
 const DISPLAY_ELEMENT_ID = 'admin-display-area';
 
+// Metadatos con los iconos y descripciones actualizadas
+const TABLE_METADATA = {
+    'producto': { icon: 'fas fa-box-open', description: 'Gestionar columnas como precio, stock, categoría, etc.' },
+    'usuario': { icon: 'fas fa-users', description: 'Gestionar columnas como email, rol, fecha de registro, etc.' },
+    'orden': { icon: 'fas fa-receipt', description: 'Gestionar columnas como ID de pedido, cliente, total, estado, etc.' },
+    'categoria': { icon: 'fas fa-tags', description: 'Gestionar la visibilidad de las columnas para la tabla de Categoría.' },
+    'direccion': { icon: 'fas fa-map-marked-alt', description: 'Gestionar la visibilidad de las columnas para la tabla de Dirección.' },
+    'departamento': { icon: 'fas fa-globe-americas', description: 'Gestionar datos geográficos de departamentos.' },
+    'municipio': { icon: 'fas fa-city', description: 'Gestionar datos geográficos de municipios.' },
+    'localidad': { icon: 'fas fa-map-pin', description: 'Gestionar datos geográficos de localidades.' },
+    'zona': { icon: 'fas fa-map', description: 'Gestionar datos geográficos de zonas.' },
+    'orden_detalle': { icon: 'fas fa-list-alt', description: 'Gestionar la visibilidad de las columnas para los detalles de la orden.' },
+};
+const DEFAULT_METADATA = { icon: 'fas fa-table', description: 'Gestión de visibilidad de columnas por rol y usuario.' };
+
+
 export class ColumnConfigDashboard {
 
     constructor(displayElementId = DISPLAY_ELEMENT_ID, modalId = MODAL_ID) {
-        // 🔑 Verificaciones defensivas en el constructor para evitar el TypeError
         this.displayElement = document.getElementById(displayElementId);
         this.modal = document.getElementById(modalId);
         this.modalTitle = document.getElementById('modal-title');
         this.modalBody = document.getElementById('modal-body');
         this.modalCloseBtn = document.getElementById('modal-close-btn');
 
-        if (!this.displayElement || !this.modal) {
-            console.error(`ColumnConfigDashboard: No se encontraron los elementos principales (Display: ${!!this.displayElement}, Modal: ${!!this.modal}).`);
-            // Retornamos sin inicializar el manager ni listeners si los elementos no están listos.
-            return;
-        }
-
         this.columnManager = new ColumnVisibilityManager();
+
         this.setupModalListeners();
     }
 
@@ -48,110 +55,121 @@ export class ColumnConfigDashboard {
         });
     }
 
-    // 🔑 NUEVO MÉTODO PRINCIPAL: Renderiza la cuadrícula de selección
+    _renderTableCard(tableName, description, iconClass) {
+        const formattedName = tableName.charAt(0).toUpperCase() + tableName.slice(1).replace(/_/g, ' ');
+        const sanitizedTableName = tableName.replace(/[^a-zA-Z0-9]/g, '');
+
+        return `
+            <div class="table-card" data-table-name="${tableName}">
+                <div class="card-header">
+                    <i class="${iconClass} card-icon"></i>
+                    
+                    <div class="card-actions dropdown">
+                        <button class="dropdown-toggle" data-toggle="dropdown" data-table="${tableName}">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu" id="crud-menu-${sanitizedTableName}">
+                            <a class="dropdown-item crud-action" data-action="view-data" data-table="${tableName}"><i class="fas fa-eye"></i> Ver datos de la tabla</a>
+                            <a class="dropdown-item crud-action" data-action="add" data-table="${tableName}"><i class="fas fa-plus-circle"></i> Añadir</a>
+                            <a class="dropdown-item crud-action" data-action="edit" data-table="${tableName}"><i class="fas fa-edit"></i> Editar</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item crud-action" data-action="delete" data-table="${tableName}"><i class="fas fa-trash-alt"></i> Eliminar</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="card-title">Tabla de ${formattedName}</h3>
+                <p class="card-description">${description}</p>
+                <div class="card-footer">
+                    <button class="btn-manage-table" data-table-name="${tableName}">
+                        <i class="fas fa-cog"></i> Gestionar Tabla
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
     loadConfigurationPanel() {
-        if (!this.displayElement) {
-            // Ya verificamos esto en el constructor, pero lo dejamos como seguro
-            console.error("El elemento 'admin-display-area' es nulo. No se puede renderizar el panel.");
-            return;
-        }
 
         const tableNames = Object.keys(REPORT_CONFIG);
 
-        // 1. Generar los tiles de las tablas
-        const tableTilesHTML = tableNames.map(tableName => {
-            const icon = this.getTableIcon(tableName);
-            const title = this.formatTableName(tableName);
-            const description = this.getTableDescription(tableName);
+        const tableCardsHTML = tableNames
+            .map(tableName => {
+                const meta = TABLE_METADATA[tableName] || DEFAULT_METADATA;
+                return this._renderTableCard(tableName, meta.description, meta.icon);
+            })
+            .join('');
 
-            return `
-                <div class="table-tile" data-table-name="${tableName}">
-                    <div class="tile-icon-wrapper">
-                        <i class="${icon}"></i>
-                    </div>
-                    <h3>Tabla de ${title}</h3>
-                    <p>${description}</p>
-                    <a href="#" class="manage-link" data-table-name="${tableName}">
-                        Gestionar Visibilidad <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            `;
-        }).join('');
-
-        // 🔑 Línea donde ocurría el error (ahora segura por la verificación)
         this.displayElement.innerHTML = `
             <div class="panel-header-wrapper">
                 <h1>Panel de Super Administrador</h1>
-                <h2>Selección de Tablas</h2>
-                <p>Elija una tabla para gestionar la visibilidad de sus columnas por rol.</p>
+                <p>Elija una tabla para gestionar su configuración o sus datos.</p>
             </div>
-            <div id="table-selection-grid">
-                ${tableTilesHTML}
+            
+            <div class="table-cards-grid">
+                ${tableCardsHTML}
                 
             </div>
         `;
 
-        // 2. Adjuntar listeners
-        this.displayElement.querySelectorAll('.manage-link, .table-tile:not(.add-new-tile)').forEach(element => {
-            element.addEventListener('click', (e) => {
-                e.preventDefault();
-                const tableName = element.getAttribute('data-table-name');
-                if (tableName) {
-                    this.showColumnVisibilityPanel(tableName);
-                }
+        // --- LISTENERS ---
+
+        document.querySelectorAll('.btn-manage-table').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const tableName = e.currentTarget.getAttribute('data-table-name');
+                this.showColumnVisibilityPanel(tableName);
             });
         });
+
+        document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                document.querySelectorAll('.dropdown-menu.active').forEach(menu => {
+                    if (menu !== e.currentTarget.nextElementSibling) {
+                        menu.classList.remove('active');
+                    }
+                });
+
+                const menu = e.currentTarget.nextElementSibling;
+                menu?.classList.toggle('active');
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.card-actions')) {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('active'));
+            }
+        });
+
+        document.querySelectorAll('.crud-action').forEach(actionLink => {
+            actionLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const action = e.currentTarget.getAttribute('data-action');
+                const table = e.currentTarget.getAttribute('data-table');
+
+                alert(`Acción: ${e.currentTarget.textContent.trim()} (${action}) en la tabla: ${table}`);
+
+                e.currentTarget.closest('.dropdown-menu').classList.remove('active');
+            });
+        });
+
     }
 
-    // 🔑 MÉTODOS AUXILIARES
-    getTableIcon(tableName) {
-        const icons = {
-            'producto': 'fas fa-box-open',
-            'usuario': 'fas fa-users',
-            'orden': 'fas fa-receipt',
-            'categoria': 'fas fa-tags',
-            'direccion': 'fas fa-map-marked-alt',
-            'departamento': 'fas fa-globe-americas',
-            'municipio': 'fas fa-city',
-            'localidad': 'fas fa-map-pin',
-            'zona': 'fas fa-map',
-            'orden_detalle': 'fas fa-list-alt',
-        };
-        return icons[tableName] || 'fas fa-table';
-    }
-
-    formatTableName(tableName) {
-        return tableName.charAt(0).toUpperCase() + tableName.slice(1).replace(/_/g, ' ');
-    }
-
-    getTableDescription(tableName) {
-        const descriptions = {
-            'producto': 'Gestionar columnas como precio, stock, categoría, etc.',
-            'usuario': 'Gestionar columnas como email, rol, fecha de registro, etc.',
-            'orden': 'Gestionar columnas como N° de pedido, cliente, total, estado, etc.',
-        };
-        return descriptions[tableName] || `Gestionar la visibilidad de las columnas para la tabla de ${this.formatTableName(tableName)}.`;
-    }
-
-    // 🔑 Método modificado para aceptar 'tableName'
     async showColumnVisibilityPanel(tableName) {
-        if (!this.modal || !this.modalTitle || !this.modalBody) {
-            console.error("ColumnConfigDashboard: Elementos modales no inicializados.");
-            return;
-        }
-
+        this.modalTitle.textContent = `Gestión de Columnas: ${tableName.charAt(0).toUpperCase() + tableName.slice(1).replace(/_/g, ' ')}`;
         this.modalBody.innerHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Cargando panel...</div>';
         this.modal.classList.add('active');
 
         try {
-            // Pasa el tableName al renderPanel
             const panelHTML = await this.columnManager.renderPanel(tableName);
             this.modalBody.innerHTML = panelHTML;
 
-            // Espera un microciclo para asegurar que el DOM ha cargado los nuevos elementos.
             await new Promise(resolve => setTimeout(resolve, 0));
 
-            // Pasa el tableName al initializePanelListeners
             await this.columnManager.initializePanelListeners(tableName);
 
         } catch (error) {

@@ -16,6 +16,8 @@ body {
     margin-bottom: 30px;
 }
 
+/* --- MODAL --- */
+
 .modal {
     display: none;
     position: fixed;
@@ -41,11 +43,8 @@ body {
     background-color: #fefefe;
     margin: 5% auto;
     padding: 25px;
-    /* Ligeramente más padding */
     border-radius: 10px;
-    /* Bordes más suaves */
     width: 95%;
-    /* CORRECCIÓN 1: Aumento del ancho máximo del modal */
     max-width: 1000px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
     position: relative;
@@ -90,7 +89,6 @@ body {
 .config-content-wrapper {
     display: flex;
     gap: 40px;
-    /* Más espacio entre los paneles */
 }
 
 .config-controls-side,
@@ -99,14 +97,12 @@ body {
 }
 
 .config-section-title {
-    /* CORRECCIÓN 2: Color al título de la sección */
     color: #28a745;
     font-size: 1.25em;
     padding-bottom: 8px;
     border-bottom: 2px solid #ddd;
     margin-top: 0;
     margin-bottom: 25px;
-    /* Más espacio debajo del título */
     font-weight: bold;
 }
 
@@ -141,7 +137,6 @@ body {
     background-color: #e9ecef;
     border: 1px solid #ced4da;
     border-radius: 4px 0 0 4px;
-    /* CORRECCIÓN 3: Color al icono del input group */
     color: #28a745;
     font-size: 1.2em;
 }
@@ -289,136 +284,7 @@ input:checked+.slider:before {
     opacity: 0.6;
 }
 
-/* --- Estilos de la Cuadrícula (Fuera del Modal) --- */
-
-#table-selection-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-    margin-top: 40px;
-}
-
-.table-tile {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: pointer;
-}
-
-.table-tile:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.tile-icon-wrapper {
-    width: 50px;
-    height: 50px;
-    background-color: #6c757d;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.table-tile:nth-child(1) .tile-icon-wrapper {
-    background-color: #28a745;
-}
-
-.table-tile:nth-child(2) .tile-icon-wrapper {
-    background-color: #007bff;
-}
-
-.table-tile:nth-child(3) .tile-icon-wrapper {
-    background-color: #ffc107;
-}
-
-.table-tile:nth-child(4) .tile-icon-wrapper {
-    background-color: #6f42c1;
-}
-
-.table-tile:nth-child(5) .tile-icon-wrapper {
-    background-color: #dc3545;
-}
-
-.table-tile:nth-child(6) .tile-icon-wrapper {
-    background-color: #17a2b8;
-}
-
-.table-tile:nth-child(7) .tile-icon-wrapper {
-    background-color: #fd7e14;
-}
-
-.table-tile:nth-child(8) .tile-icon-wrapper {
-    background-color: #20c997;
-}
-
-.table-tile:nth-child(9) .tile-icon-wrapper {
-    background-color: #e83e8c;
-}
-
-.table-tile:nth-child(10) .tile-icon-wrapper {
-    background-color: #343a40;
-}
-
-.tile-icon-wrapper i {
-    color: white;
-    font-size: 24px;
-}
-
-.table-tile h3,
-.table-tile h4 {
-    margin-top: 0;
-    font-size: 1.25rem;
-    color: #333;
-}
-
-.table-tile p {
-    color: #666;
-    font-size: 0.95rem;
-    margin-bottom: 15px;
-}
-
-.manage-link {
-    display: inline-block;
-    color: #28a745;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.manage-link i {
-    margin-left: 5px;
-    transition: margin-left 0.2s;
-}
-
-.table-tile:hover .manage-link i {
-    margin-left: 10px;
-}
-
-.add-new-tile {
-    border: 2px dashed #ccc;
-    text-align: center;
-    background-color: #f8f8f8;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.add-new-tile .tile-icon-wrapper {
-    background-color: transparent;
-    border: 2px solid #ccc;
-}
-
-.add-new-tile .tile-icon-wrapper i {
-    color: #ccc;
-    font-size: 36px;
-}
-
-/* --- Estilos específicos para el Buscador de Usuarios (Override) --- */
+/* --- Estilos específicos para el Buscador de Usuarios --- */
 
 .input-group-search {
     position: relative;
@@ -431,9 +297,7 @@ input:checked+.slider:before {
 }
 
 #user-search-input {
-    /* Asegurar que el input sea visualmente parte del control */
     padding-right: 35px;
-    /* Espacio para el botón de limpiar */
     border-radius: 4px;
     border: 1px solid #ccc;
     height: 38px;
@@ -452,7 +316,6 @@ input:checked+.slider:before {
     cursor: pointer;
     padding: 0 5px;
     z-index: 10;
-    /* Asegurar que esté por encima del input */
 }
 
 .btn-clear-search:hover {
@@ -470,7 +333,6 @@ input:checked+.slider:before {
     border: 1px solid #ddd;
     border-top: none;
     z-index: 100;
-    /* Asegurar que esté por encima de todos los elementos del modal */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-height: 200px;
     overflow-y: auto;
@@ -515,4 +377,257 @@ input:checked+.slider:before {
     color: #6c757d;
     font-style: italic;
     text-align: center;
+}
+
+/* --- ESTILOS DE LA CUADRÍCULA DE TARJETAS --- */
+
+#table-selection-grid,
+.table-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 40px;
+    padding: 20px 0;
+}
+
+.table-tile,
+.table-card {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-tile:hover,
+.table-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.table-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+/* 🔑 RESTAURACIÓN DE ESTILOS DE ICONO CON FONDO DE COLOR ÚNICO */
+.table-card .card-icon {
+    font-size: 24px;
+    color: white !important;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    background-color: #6c757d;
+}
+
+/* Aplicando el color de fondo distintivo para cada tarjeta usando nth-child */
+.table-card:nth-child(1) .card-icon {
+    background-color: #28a745;
+}
+
+/* Producto */
+.table-card:nth-child(2) .card-icon {
+    background-color: #007bff;
+}
+
+/* Categoría */
+.table-card:nth-child(3) .card-icon {
+    background-color: #ffc107;
+}
+
+/* Usuario */
+.table-card:nth-child(4) .card-icon {
+    background-color: #6f42c1;
+}
+
+/* Dirección */
+.table-card:nth-child(5) .card-icon {
+    background-color: #dc3545;
+}
+
+/* Orden */
+.table-card:nth-child(6) .card-icon {
+    background-color: #17a2b8;
+}
+
+/* Orden Detalle */
+.table-card:nth-child(7) .card-icon {
+    background-color: #fd7e14;
+}
+
+/* Departamento */
+.table-card:nth-child(8) .card-icon {
+    background-color: #20c997;
+}
+
+/* Municipio */
+.table-card:nth-child(9) .card-icon {
+    background-color: #e83e8c;
+}
+
+/* Localidad */
+.table-card:nth-child(10) .card-icon {
+    background-color: #343a40;
+}
+
+/* Zona */
+
+
+.table-card .card-title {
+    font-size: 1.3em;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+    margin-top: 0;
+}
+
+.table-card .card-description {
+    color: #666;
+    font-size: 0.9em;
+    flex-grow: 1;
+    margin-bottom: 20px;
+}
+
+.table-card .card-footer {
+    padding-top: 0;
+}
+
+/* --- ESTILOS DEL MENÚ DESPLEGABLE (TRES PUNTOS) --- */
+
+.card-actions {
+    position: relative;
+    display: inline-block;
+}
+
+.card-actions .dropdown-toggle {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s;
+}
+
+.card-actions .dropdown-toggle:hover {
+    color: #333;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    z-index: 100;
+    display: none;
+    margin-top: 5px;
+    padding: 5px 0;
+    list-style: none;
+}
+
+.dropdown-menu.active {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.dropdown-item i {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+.dropdown-item[data-action="delete"] {
+    color: #dc3545;
+}
+
+.dropdown-item:hover {
+    background-color: #f5f5f5;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 5px 0;
+}
+
+/* --- ESTILOS DEL BOTÓN "Gestionar Tabla" (Tuerca) --- */
+
+.btn-manage-table {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.btn-manage-table:hover {
+    background: #388e3c;
+}
+
+.btn-manage-table i {
+    margin-right: 8px;
+}
+
+/* --- ESTILOS DE "Añadir Nueva Tabla" --- */
+
+.add-new-card {
+    border: 2px dashed #ccc;
+    text-align: center;
+    background-color: #f8f8f8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-new-card .card-icon {
+    background-color: transparent !important;
+    border: 2px solid #ccc;
+    color: #ccc !important;
+    font-size: 36px;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+}
+
+.add-new-card .btn-add-table {
+    background: none;
+    border: none;
+    color: #6c757d;
+    font-size: 1.1em;
+    padding: 15px;
+    cursor: pointer;
+}
+
+.add-new-card .btn-add-table i {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 10px;
 }
