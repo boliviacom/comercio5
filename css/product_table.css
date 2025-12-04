@@ -1,0 +1,1163 @@
+:root {
+    --primary-color: #80CC28;
+    --secondary-color: #17542A;
+    --hover-color: rgb(79, 134, 15);
+    --text-color-light: #ecf0f1;
+    --sidebar-width-expanded: 250px;
+    --sidebar-width-collapsed: 80px;
+    --header-height: 60px;
+}
+
+#modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+/* ========================================================== */
+/* Estilos Específicos para la Tabla de Productos (AdminProductManager) */
+/* ========================================================== */
+
+/* 🟢 SOLUCIÓN CLAVE: table-layout: fixed; OBLIGA al navegador a respetar los anchos definidos. */
+.data-table {
+    width: 100% !important;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+    table-layout: fixed;
+    font-family: Arial, sans-serif;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 10px;
+    text-align: left;
+    vertical-align: middle;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #ffffff;
+    /* Para que el contenido que se desborde no se muestre */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Encabezados de tabla */
+.data-table th {
+    background-color: #f5f5f5;
+    color: #333;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding: 10px 15px;
+    border-top: none;
+    border-bottom: 2px solid #ddd;
+}
+
+/* Esquinas redondeadas para la primera y última celda de la fila */
+.data-table tr:hover td {
+    background-color: #fafafa;
+}
+
+.data-table tr td:first-child {
+    border-left: 1px solid #e0e0e0;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.data-table tr th:first-child {
+    border-top-left-radius: 8px;
+}
+
+/* 🟢 REFINAMIENTO CLAVE: Anchos fijos para todas las columnas de control/datos pequeños */
+
+/* Columna N° (1er TH/TD) */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+    width: 50px;
+    max-width: 60px;
+}
+
+.data-table th:nth-child(2),
+.data-table td:nth-child(2) {
+    width: 300px;
+    max-width: 900px;
+}
+
+/* Columna PRECIO UNIT. (3er TH/TD) */
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+    width: 100px;
+    max-width: 110px;
+    text-align: center;
+}
+
+/* Columna STOCK (4to TH/TD) */
+.data-table th:nth-child(4),
+.data-table td:nth-child(4) {
+    width: 80px;
+    max-width: 90px;
+    text-align: center;
+}
+
+/* Columna CATEGORÍA (5to TH/TD) */
+.data-table th:nth-child(5),
+.data-table td:nth-child(5) {
+    width: 140px;
+    max-width: 150px;
+    text-align: center;
+}
+
+/* Columna OPCIONES (6to TH/TD - que corresponde a switch-controls-wrapper) */
+.data-table th:nth-child(6),
+.data-table td.switch-controls-wrapper {
+    width: 260px;
+    /* Ancho suficiente para los 3 switches */
+    max-width: 270px;
+    padding: 10px 5px !important;
+    text-align: center;
+}
+
+/* Columna ACCIONES (7mo TH/TD) */
+.data-table .action-column {
+    width: 90px;
+    /* Reducido para eliminar el espacio blanco excesivo */
+    max-width: 70px;
+    text-align: center;
+}
+
+/* Bordes y radio de la última celda TD (ACCIONES) */
+.data-table tr td:last-child {
+    border-right: 1px solid #e0e0e0;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.data-table tr th:last-child {
+    border-top-right-radius: 8px;
+}
+
+/* FIN REFINAMIENTO CLAVE */
+
+/* Columna de Producto (Product Cell) - Ocupa el espacio restante */
+.data-table .product-cell {
+    /* Esta columna absorberá el espacio restante (flexibilidad) */
+    width: auto;
+    min-width: 200px;
+    /* Ancho mínimo para que se vea bien */
+    max-width: none;
+    white-space: normal;
+    /* Permitir que el contenido fluya dentro de su celda */
+}
+
+/* Asegurarse de que el contenido de la celda de producto no tenga el estilo nowrap global */
+.data-table .product-cell .product-name,
+.data-table .product-cell .product-description {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.product-info-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.product-image {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+    color: #999;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-details {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.product-name {
+    font-weight: 700;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.product-description {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 2px;
+}
+
+/* Estilo para las etiquetas de categoría (se mantiene bien) */
+.category-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background-color: #e0f7fa;
+    color: #00796b;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: capitalize;
+}
+
+/* 🟢 ALINEACIÓN DE COLUMNAS DE DATOS */
+.data-table td:nth-child(1),
+.data-table td:nth-child(3),
+.data-table td:nth-child(4),
+.data-table td:nth-child(5) {
+    text-align: center;
+}
+
+/* ========================================================== */
+/* Switches Individuales (Filas de Datos) */
+/* ========================================================== */
+
+/* Contenedor interno para los tres switches (Alineación Horizontal) */
+.individual-switches-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 5px;
+}
+
+/* Contenedor individual para cada switch (Alineación Vertical: Label encima de Switch) */
+.switch-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+/* Estilo para la etiqueta de texto encima del switch individual */
+.data-switch-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+/* Estilo para registros inactivos (Eliminados/Ocultos) */
+.inactive-record td {
+    background-color: #ffe0e0 !important;
+    opacity: 0.7;
+    text-decoration: line-through;
+}
+
+/* ========================================================== */
+/* Estilos de los Controles Globales (Fila Global) */
+/* ========================================================== */
+
+.global-controls-row td {
+    padding: 10px 15px;
+    background-color: #fcfcfc !important;
+    border-top: 1px solid #ddd;
+    border-bottom: 2px solid #ddd;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    white-space: nowrap;
+    /* Asegurarse de que el texto de la fila global se mantenga en una línea */
+}
+
+/* Label de 'Opciones Globales:' */
+.global-controls-row .global-controls-cell-label {
+    text-align: right !important;
+    padding-right: 25px;
+    font-size: 1rem;
+    color: #555;
+    font-weight: 700;
+}
+
+/* 1. Contenedor de la celda de switches globales */
+.global-controls-row .global-switches-wrapper {
+    padding: 8px 5px !important;
+    text-align: center !important;
+}
+
+/* 2. El contenedor interno para los tres switches (Alineación Horizontal) */
+.global-switches-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 5px;
+    margin: 0 auto;
+    /* Ancho máximo para que se alinee con las columnas OPCIONES y ACCIONES */
+    max-width: 300px;
+}
+
+/* 3. Contenedor individual para cada switch (Alineación Vertical: Label encima de Switch) */
+.global-switch-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+}
+
+/* Etiqueta individual encima del switch (Precio, WhatsApp, Form. Contacto) */
+.global-controls-row .switch-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6c757d;
+    margin-bottom: 4px;
+    text-transform: none;
+    white-space: nowrap;
+    text-align: center;
+}
+
+
+/* Remueve los bordes redondeados de la fila global para que se integre al thead */
+.global-controls-row td:first-child,
+.global-controls-row td:last-child {
+    border-left: none !important;
+    border-right: none !important;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+
+/* ========================================================== */
+/* Estilos Base para el Componente Switch (Toggle) - TEMATIZADO */
+/* ========================================================== */
+
+/* Base del Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 45px;
+    height: 24px;
+    margin: 0;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+/* Oculta el input por defecto */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* El slider (el área que se mueve) */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+/* Círculo que se mueve */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+/* Cuando está checked - 🟢 USA PRIMARY COLOR (BASE) */
+input:checked.slider {
+    background-color: var(--primary-color);
+}
+
+/* Mueve el círculo a la derecha */
+input:checked.slider:before {
+    transform: translateX(21px);
+}
+
+/* Slider redondeado */
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Indicador de carga para el switch (Azul consistente) */
+.switch.loading .slider {
+    background-color: var(--primary-color);
+    /* Color Azul (Estado "Cargando") */
+    opacity: 0.8;
+}
+
+/* Estilo para botones de acción (Editar/Eliminar) */
+.btn-action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #007bff;
+    /* REVERTIDO: Color fijo para acciones (AZUL) */
+    margin: 0 2px;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    font-size: 1rem;
+}
+
+.btn-action:hover {
+    background-color: #e9ecef;
+}
+
+.btn-delete {
+    color: #dc3545;
+    /* REVERTIDO: Color fijo para eliminar (ROJO) */
+}
+
+.btn-delete:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+
+/* ========================================================== */
+/* --- TEMA OSCURO (Dark Mode) --- */
+/* ========================================================== */
+
+body.dark {
+    /* Fondo y Colores Generales */
+    --bg-color-main: #121212;
+    --text-color-main: #E0E0E0;
+    --text-color-light: #f8f8f8;
+
+    /* Colores del Tema */
+    --primary-color: #80CC28;
+    --secondary-color: #1E1E1E;
+    --hover-color: rgb(79, 134, 15);
+
+    /* Estilos del Contenido Principal */
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
+}
+
+/* 🟢 FIX: Asegurar la especificidad del switch checked en Dark Mode */
+body.dark input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+body.dark .slider {
+    background-color: #555;
+    /* Gris oscuro para el switch Off */
+}
+
+/* --- Otros estilos Dark Mode --- */
+
+.filter-controls-container {
+    background-color: var(--bg-color-main);
+}
+
+body.dark .main-content h1 {
+    color: var(--primary-color);
+}
+
+body.dark .data-table thead th {
+    background-color: #2c2c2c;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.dark .data-table {
+    background-color: #242424;
+    border: 1px solid #333;
+}
+
+body.dark .data-table th,
+body.dark .data-table td {
+    color: var(--text-color-main);
+    border-bottom: 1px solid #333;
+}
+
+body.dark .table-responsive {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .data-table tbody tr:hover {
+    background-color: #313131;
+}
+
+body.dark .data-table tr.inactive-record:hover {
+    background-color: #ffeaea;
+}
+
+/* Modal y Formularios en Dark Mode */
+body.dark .modal-content {
+    background-color: #2c2c2c;
+    color: var(--text-color-main);
+}
+
+body.dark .form-group label {
+    color: var(--text-color-main);
+}
+
+body.dark .modal-content input:not([type="file"]):not([type="hidden"]),
+body.dark .modal-content textarea,
+body.dark .modal-content .input-select,
+body.dark .input-text-search {
+    background-color: var(--secondary-color);
+    border: 1px solid #444;
+    color: var(--text-color-main);
+}
+
+body.dark .modal-content input::placeholder,
+body.dark .input-text-search::placeholder,
+body.dark .modal-content textarea::placeholder {
+    color: #a0a0a0;
+    background-color: var(--secondary-color);
+}
+
+body.dark .btn-cancel-modal {
+    background-color: #555;
+    color: #fff;
+}
+
+body.dark .btn-cancel-modal:hover {
+    background-color: #666;
+}
+
+#modal-title {
+    color: var(--text-color-main);
+}
+
+/* --- OVERRIDES DE TABLA PARA DARK MODE --- */
+body.dark .data-table th,
+body.dark .data-table td {
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+}
+
+body.dark .data-table tr td:first-child,
+body.dark .data-table tr td:last-child {
+    border-color: #333;
+}
+
+body.dark .data-table tr:hover td {
+    background-color: #313131;
+}
+
+body.dark .product-image {
+    background-color: #333;
+    color: #999;
+    border-color: #444;
+}
+
+body.dark .product-name {
+    color: var(--text-color-main);
+}
+
+body.dark .product-description {
+    color: #A0A0A0;
+    /* Gris más claro para descripción */
+}
+
+body.dark .category-badge {
+    background-color: #3A3A3A;
+    color: var(--primary-color);
+}
+
+body.dark .data-switch-label {
+    color: #999;
+}
+
+body.dark .global-controls-row td {
+    background-color: #2c2c2c !important;
+    border-top: 1px solid #333;
+    border-bottom: 2px solid #333;
+    box-shadow: none;
+}
+
+body.dark .global-controls-row .global-controls-cell-label {
+    color: var(--primary-color);
+}
+
+body.dark .global-controls-row .switch-label {
+    color: #999;
+}
+
+body.dark .btn-action:hover {
+    background-color: #313131;
+}
+
+body.dark .btn-delete {
+    color: #ff6b6b;
+    /* Rojo más claro para dark mode */
+}
+
+body.dark .btn-delete:disabled {
+    color: #666;
+}
+
+body.dark .inactive-record td {
+    background-color: #401f1f !important;
+    /* Rojo oscuro para inactivo */
+}
+
+/* ========================================================== */
+/* --- TEMA AZUL (Ocean Blue) --- */
+/* ========================================================== */
+
+body.blue {
+    /* Fondo y Colores Generales */
+    --primary-color: #00BFA5;
+    /* Acento Aqua/Turquesa */
+    --secondary-color: #1A237E;
+    /* Azul Índigo para la sidebar */
+    --hover-color: #3949AB;
+    /* Azul más claro para hover */
+    --text-color-main: #263238;
+
+    /* Estilos del Contenido Principal */
+    background-color: #E3F2FD;
+    /* Fondo muy claro */
+    color: var(--text-color-main);
+}
+
+/* 🟢 FIX: Asegurar la especificidad del switch checked en Blue Mode */
+body.blue input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+/* --- Otros estilos Blue Mode --- */
+
+body.blue .main-content h1 {
+    color: var(--secondary-color);
+}
+
+body.blue .data-table thead th {
+    background-color: #BBDEFB;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.blue .sidebar {
+    background-color: var(--secondary-color);
+}
+
+body.blue .sidebar a:hover {
+    background-color: var(--hover-color);
+}
+
+body.blue .main-content h1 {
+    color: var(--secondary-color);
+}
+
+/* Estilos para Modales en Ocean Blue */
+body.blue .modal-content {
+    background-color: #ffffff;
+    color: var(--text-color-main);
+}
+
+body.blue .form-group label {
+    color: var(--text-color-main);
+}
+
+body.blue .modal-content input:not([type="file"]):not([type="hidden"]),
+body.blue .modal-content textarea,
+body.blue .modal-content .input-select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: var(--text-color-main);
+}
+
+body.blue .btn-primary-modal {
+    background-color: var(--primary-color);
+}
+
+body.blue .btn-primary-modal:hover {
+    background-color: var(--hover-color);
+}
+
+body.blue .data-table tbody tr:hover {
+    background-color: #E8F5FF;
+}
+
+/* --- OVERRIDES DE TABLA PARA OCEAN BLUE --- */
+body.blue .data-table th,
+body.blue .data-table td {
+    border-color: #BBDEFB;
+}
+
+body.blue .data-table tr td:first-child,
+body.blue .data-table tr td:last-child {
+    border-color: #BBDEFB;
+}
+
+body.blue .data-table tr:hover td {
+    background-color: #E8F5FF;
+}
+
+body.blue .global-controls-row td {
+    background-color: #E0F7FA !important;
+    border-top: 1px solid #BBDEFB;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.blue .btn-action:hover {
+    background-color: #CFD8DC;
+}
+
+/* ========================================================== */
+/* --- Estilos para el Modal de Personalización (Se mantienen) --- */
+/* ========================================================== */
+
+#personalization-modal-title {
+    color: var(--primary-color);
+    border-bottom: none;
+}
+
+.theme-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+.theme-options h4 {
+    width: 100%;
+    margin-bottom: 5px;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.theme-btn {
+    padding: 12px 20px;
+    border: 2px solid var(--primary-color);
+    background-color: #f7f7f7;
+    color: var(--secondary-color);
+    cursor: pointer;
+    border-radius: 8px;
+    font-weight: 600;
+    flex-grow: 1;
+    min-width: 120px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.theme-btn[data-theme="default"] {
+    /* Colores base para el botón Default */
+    border-color: #80CC28;
+    color: #17542A;
+}
+
+.theme-btn[data-theme="dark"] {
+    /* Colores para el botón Dark */
+    background-color: #1E1E1E;
+    color: #E0E0E0;
+}
+
+.theme-btn[data-theme="blue"] {
+    /* Colores para el botón Blue */
+    border-color: #1A237E;
+    color: #1A237E;
+}
+
+.theme-btn[data-theme="gold"] {
+    /* Colores para el botón Blue */
+    border-color: #1A237E;
+    color: #1A237E;
+}
+
+/* Hover y Estado Activo */
+.theme-btn:hover {
+    opacity: 0.8;
+}
+
+.theme-btn.active-theme {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* ========================================================== */
+/* --- TEMA ORO (Gold) --- */
+/* ========================================================== */
+body.gold {
+    /* Fondo y Colores Generales */
+    --primary-color: #FFC107;
+    /* Bright Gold */
+    --secondary-color: #5D4037;
+    /* Deep Brown (Sidebar) */
+    --hover-color: #795548;
+    /* Lighter Brown */
+    --bg-color-main: #FFF8E1;
+    /* Light Cream */
+    --text-color-main: #212121;
+    /* Dark Text */
+
+    /* Estilos del Contenido Principal */
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
+}
+
+/* 🟢 FIX: Asegurar la especificidad del switch checked en Gold Mode */
+body.gold input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+/* --- Otros estilos Gold Mode --- */
+
+body.gold .sidebar {
+    background-color: var(--secondary-color);
+}
+
+body.gold .sidebar a:hover {
+    background-color: var(--hover-color);
+}
+
+body.gold .main-content h1 {
+    color: var(--secondary-color);
+}
+
+body.gold .data-table thead th {
+    background-color: #FFE082;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.gold .data-table tbody tr:hover {
+    background-color: #FFFDE7;
+}
+
+body.gold .modal-content {
+    background-color: #ffffff;
+}
+
+body.gold .modal-content input:not([type="file"]):not([type="hidden"]),
+body.gold .modal-content textarea,
+body.gold .modal-content .input-select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: var(--text-color-main);
+}
+
+body.gold .theme-btn[data-theme="gold"] {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+/* --- OVERRIDES DE TABLA PARA GOLD --- */
+body.gold .data-table th,
+body.gold .data-table td {
+    border-color: #FFE082;
+}
+
+body.gold .data-table tr td:first-child,
+body.gold .data-table tr td:last-child {
+    border-color: #FFE082;
+}
+
+body.gold .data-table tr:hover td {
+    background-color: #FFFDE7;
+}
+
+body.gold .global-controls-row td {
+    background-color: #FFFDE7 !important;
+    border-top: 1px solid #FFE082;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.gold .btn-action:hover {
+    background-color: #FBEFCD;
+}
+
+
+/* ========================================================== */
+/* --- TEMA MAGENTA --- */
+/* ========================================================== */
+body.magenta {
+    /* Fondo y Colores Generales */
+    --primary-color: #E91E63;
+    /* Vibrant Magenta */
+    --secondary-color: #880E4F;
+    /* Deep Purple-Pink (Sidebar) */
+    --hover-color: #C2185B;
+    /* Darker Magenta */
+    --bg-color-main: #FCE4EC;
+    /* Light Pink */
+    --text-color-main: #4A148C;
+    /* Dark Purple Text */
+
+    /* Estilos del Contenido Principal */
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
+}
+
+/* 🟢 FIX: Asegurar la especificidad del switch checked en Magenta Mode */
+body.magenta input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+/* --- Otros estilos Magenta Mode --- */
+
+body.magenta .sidebar {
+    background-color: var(--secondary-color);
+}
+
+body.magenta .sidebar a:hover {
+    background-color: var(--hover-color);
+}
+
+body.magenta .main-content h1 {
+    color: var(--secondary-color);
+}
+
+body.magenta .data-table thead th {
+    background-color: #F8BBD0;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.magenta .data-table tbody tr:hover {
+    background-color: #ff9db7;
+}
+
+body.magenta .modal-content {
+    background-color: #ffffff;
+}
+
+body.magenta .modal-content input:not([type="file"]):not([type="hidden"]),
+body.magenta .modal-content textarea,
+body.magenta .modal-content .input-select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: var(--text-color-main);
+}
+
+body.magenta .theme-btn[data-theme="magenta"] {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+/* --- OVERRIDES DE TABLA PARA MAGENTA --- */
+body.magenta .data-table th,
+body.magenta .data-table td {
+    border-color: #F8BBD0;
+}
+
+body.magenta .data-table tr td:first-child,
+body.magenta .data-table tr td:last-child {
+    border-color: #F8BBD0;
+}
+
+body.magenta .data-table tr:hover td {
+    background-color: #ff9db7;
+}
+
+body.magenta .global-controls-row td {
+    background-color: #FCE4EC !important;
+    border-top: 1px solid #F8BBD0;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.magenta .btn-action:hover {
+    background-color: #F48FB1;
+}
+
+/* ========================================================== */
+/* --- TEMA VERDE BOSQUE (Forest Green) --- */
+/* ========================================================== */
+body.forest-green {
+    /* Fondo y Colores Generales */
+    --primary-color: #8BC34A;
+    /* Light/Leaf Green */
+    --secondary-color: #1B5E20;
+    /* Deep Forest Green (Sidebar) */
+    --hover-color: #388E3C;
+    /* Moss Green */
+    --bg-color-main: #F1F8E9;
+    /* Light Green */
+    --text-color-main: #1B5E20;
+    /* Dark Green Text */
+
+    /* Estilos del Contenido Principal */
+    background-color: var(--bg-color-main);
+    color: var(--text-color-main);
+}
+
+/* 🟢 FIX: Asegurar la especificidad del switch checked en Forest Green Mode */
+body.forest-green input:checked+.slider {
+    background-color: var(--primary-color);
+}
+
+/* --- Otros estilos Forest Green Mode --- */
+
+body.forest-green .sidebar {
+    background-color: var(--secondary-color);
+}
+
+body.forest-green .sidebar a:hover {
+    background-color: var(--hover-color);
+}
+
+body.forest-green .main-content h1 {
+    color: var(--secondary-color);
+}
+
+body.forest-green .data-table thead th {
+    background-color: #DCEDC8;
+    color: var(--secondary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.forest-green .data-table tbody tr:hover {
+    background-color: #F7FFF0;
+}
+
+body.forest-green .modal-content {
+    background-color: #ffffff;
+}
+
+body.forest-green .modal-content input:not([type="file"]):not([type="hidden"]),
+body.forest-green .modal-content textarea,
+body.forest-green .modal-content .input-select {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: var(--text-color-main);
+}
+
+body.forest-green .theme-btn[data-theme="forest-green"] {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+/* --- OVERRIDES DE TABLA PARA FOREST GREEN --- */
+body.forest-green .data-table th,
+body.forest-green .data-table td {
+    border-color: #DCEDC8;
+}
+
+body.forest-green .data-table tr td:first-child,
+body.forest-green .data-table tr td:last-child {
+    border-color: #DCEDC8;
+}
+
+body.forest-green .data-table tr:hover td {
+    background-color: #F7FFF0;
+}
+
+body.forest-green .global-controls-row td {
+    background-color: #F1F8E9 !important;
+    border-top: 1px solid #DCEDC8;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+body.forest-green .btn-action:hover {
+    background-color: #C5E1A5;
+}
+/* Estilos para el contenedor del filtro y búsqueda */
+.filter-controls-container {
+    display: flex; /* Alinea la caja de búsqueda y el filtro de categoría horizontalmente */
+    gap: 20px; /* Espacio entre los controles */
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    align-items: flex-end; /* Alinea los elementos al final (útil si hay etiquetas de diferentes alturas) */
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas más pequeñas */
+}
+
+/* Estilos para la caja de búsqueda */
+.search-box {
+    flex-grow: 1; /* Permite que la caja de búsqueda ocupe el espacio restante */
+    min-width: 250px; /* Ancho mínimo para la caja de búsqueda */
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-text-search {
+    width: 100%;
+    padding: 10px 10px 10px 40px; /* Más padding a la izquierda para el ícono */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.3s;
+}
+
+.input-text-search:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    color: #888;
+    font-size: 16px;
+    pointer-events: none; /* Asegura que el clic pase al input */
+}
+
+/* Estilos para el filtro de categoría (el SELECT) */
+.form-group {
+    display: flex;
+    flex-direction: column; /* Coloca la etiqueta encima del select */
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+    font-size: 14px;
+}
+
+.input-select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    appearance: none; /* Remueve la flecha de select nativa */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); /* Flecha SVG personalizada */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 35px; /* Espacio para la flecha */
+    cursor: pointer;
+    min-width: 180px;
+}
+
+
+/* Estilos para el mensaje de error del filtro */
+.filter-select-error .input-select {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Asegúrate de que los íconos (como .fas) estén cargados, por ejemplo, con Font Awesome. */

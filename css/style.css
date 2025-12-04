@@ -1,22 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&display=swap');
-
-:root {
-    --primary-color: #80CC28;
-    --secondary-color: #17542A;
-    --hover-color: rgb(79, 134, 15);
-    --text-color-light: #ecf0f1;
-    --sidebar-width-expanded: 250px;
-    --sidebar-width-collapsed: 80px;
-    --header-height: 60px;
-}
-
-body {
-    font-family: 'Kanit', sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    min-height: 100vh;
-}
 
 .sidebar {
     width: var(--sidebar-width-expanded);
@@ -408,19 +389,7 @@ body {
     opacity: 1;
 }
 
-.modal-content {
-    background-color: white;
-    padding: 30px;
-    border-radius: 10px;
-    max-width: 600px;
-    width: 90%;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
-}
+
 
 .modal-overlay.active .modal-content {
     transform: scale(1);
@@ -721,11 +690,11 @@ body {
     transition: .4s;
 }
 
-input:checked+.slider {
+input:checked.slider {
     background-color: var(--primary-color);
 }
 
-input:checked+.slider:before {
+input:checked.slider:before {
     transform: translateX(21px);
 }
 

@@ -1,3 +1,8 @@
+/**
+ * Configuración para la generación de reportes y visualización de tablas.
+ * Contiene la definición de las columnas (headers) y los campos a seleccionar (select)
+ * y a mapear (fields) para cada entidad.
+ */
 export const REPORT_CONFIG = {
     'producto': {
         select: 'id, nombre, imagen_url, descripcion, precio, stock, visible, mostrar_precio, habilitar_whatsapp, habilitar_formulario, c:categoria!id_categoria(nombre)',
@@ -37,7 +42,9 @@ export const REPORT_CONFIG = {
     },
     'usuario': {
         id_key: 'id',
+        // Se mantiene el select del primer bloque (más completo)
         select: 'id, ci, primer_nombre, segundo_nombre, apellido_paterno, apellido_materno, rol, correo_electronico, contrasena, visible',
+        // Se utilizan los headers y fields del segundo bloque (más limpio y directo)
         headers: ['ID', 'CI', 'Nombre', 'Apellido', 'ROL', 'Correo Electrónico', 'Contraseña', 'Visible'],
         fields: ['id', 'ci', 'primer_nombre', 'apellido_paterno', 'rol', 'correo_electronico', 'contrasena', 'visible']
     },
@@ -56,6 +63,7 @@ export const REPORT_CONFIG = {
         ],
         fields: [
             'id_direccion',
+            // Se utiliza solo el primer nombre para simplicidad en la tabla, aunque el select trae más
             'u.primer_nombre',
             'z.l.nombre',
             'calle_avenida',
@@ -67,6 +75,7 @@ export const REPORT_CONFIG = {
     },
     'orden': {
         id_key: 'id',
+        // Se mantiene el select del segundo bloque (más simple y manejable)
         select: `id,fecha,total,metodo_pago,estado,visible,u:usuario!id_usuario(primer_nombre),d:direccion!id_direccion(calle_avenida)`.replace(/\s/g, ''),
         headers: [
             'N°',
@@ -123,7 +132,7 @@ export const REPORT_CONFIG = {
     },
     'localidad': {
         id_key: 'id_localidad',
-        headers: ['N°', 'LOCALIDAD', 'MUNICIPIO', 'VISIBLE'],
+        headers: ['N°', 'LOCALIDAD', 'MUNICIPIO', 'VISIBLE'], // Se agrega 'VISIBLE' del segundo bloque
         select: 'id_localidad, nombre, visible, municipio:id_municipio!inner(nombre)',
         fields: ['id_localidad', 'nombre', 'municipio.nombre', 'visible']
     },
@@ -136,22 +145,167 @@ export const REPORT_CONFIG = {
 };
 
 
+/**
+ * Configuración de campos para formularios de Creación/Edición (CRUD).
+ * Define el nombre, etiqueta, tipo y reglas de validación/configuración para cada campo
+ * en las diferentes entidades.
+ */
 export const CRUD_FIELDS_CONFIG = {
     'producto': [
         { name: 'nombre', label: 'Nombre del Producto', type: 'text', required: true },
         { name: 'descripcion', label: 'Descripción', type: 'textarea', required: false },
         { name: 'precio', label: 'Precio Unitario (Bs.)', type: 'number', step: '0.01', required: true },
         { name: 'stock', label: 'Stock Actual', type: 'number', required: true },
-        { name: 'id_categoria', label: 'Categoría', type: 'select', required: true },
+        // Se añaden los campos para la subida de imagen y la categoría (del primer bloque)
+        { name: 'file_upload', label: 'Subir Imagen (Max 2MB)', type: 'file', required: false },
+        {
+            name: 'id_categoria',
+            label: 'Categoría',
+            type: 'select',
+            required: true,
+            options_service: 'CategoriaService'
+        },
+        // Se añade el campo hidden para imagen_url (del primer bloque)
+        { name: 'imagen_url', label: 'Imagen URL', type: 'hidden' },
     ],
     'categoria': [
-        { name: 'nombre', label: 'Nombre de la Categoría', type: 'text', required: true },
+        // Se usan los campos del primer bloque (más completo con maxLength)
+        { name: 'nombre', label: 'Nombre de la Categoría', type: 'text', required: true, maxLength: 50 },
         { name: 'visible', label: '¿Es Visible al Público?', type: 'checkbox', required: false },
     ],
     'usuario': [
+        // Se utilizan los campos del primer bloque (más completo)
+        { name: 'id', label: 'ID (UUID)', type: 'hidden', disabled: true },
         { name: 'ci', label: 'Cédula de Identidad (CI)', type: 'text', required: true },
         { name: 'primer_nombre', label: 'Primer Nombre', type: 'text', required: true },
+        { name: 'segundo_nombre', label: 'Segundo Nombre', type: 'text', required: false },
         { name: 'apellido_paterno', label: 'Apellido Paterno', type: 'text', required: true },
+        { name: 'apellido_materno', label: 'Apellido Materno', type: 'text', required: true },
+        { name: 'celular', label: 'Celular', type: 'text', required: true },
         { name: 'correo_electronico', label: 'Correo Electrónico', type: 'email', required: true },
+        { name: 'contrasena', label: 'Contraseña', type: 'password', required: false, placeholder: 'Dejar vacío para mantener la actual' },
+        { name: 'rol', label: 'Rol', type: 'text', disabled: true },
+    ],
+    'direccion': [
+        // Se utilizan los campos del primer bloque (más completo)
+        { name: 'id_direccion', label: 'ID', type: 'hidden', disabled: true },
+        {
+            name: 'id_usuario',
+            label: 'Usuario (Propietario)',
+            type: 'select',
+            required: true,
+            options_service: 'UsuarioService'
+        },
+        {
+            name: 'id_zona',
+            label: 'Zona',
+            type: 'select',
+            required: true,
+            options_service: 'ZonaService'
+        },
+        // Se añade id_localidad, aunque dependa de Zona
+        {
+            name: 'id_localidad',
+            label: 'Localidad',
+            type: 'select',
+            required: false,
+            options_service: 'LocalidadService'
+        },
+        { name: 'calle_avenida', label: 'Calle/Avenida', type: 'text', required: true, maxLength: 150 },
+        { name: 'numero_casa_edificio', label: 'N° Casa/Edificio', type: 'text', required: false, maxLength: 20 },
+        { name: 'referencia_adicional', label: 'Referencia Adicional', type: 'textarea', required: false },
+    ],
+    'orden': [
+        // Se utilizan los campos del primer bloque (más completo)
+        { name: 'id', label: 'ID', type: 'hidden', disabled: true },
+        { name: 'fecha', label: 'Fecha de Creación', type: 'datetime-local', required: true, disabled: true },
+        {
+            name: 'id_usuario',
+            label: 'Cédula de Identidad (Cliente)',
+            type: 'select',
+            required: true,
+            is_client_ci: true
+        },
+        {
+            name: 'id_direccion',
+            label: 'Dirección de Entrega',
+            type: 'select',
+            required: true,
+            options_service: 'DireccionService',
+            dependency: 'id_localidad_form'
+        },
+        {
+            name: 'metodo_pago',
+            label: 'Método de Pago',
+            type: 'select',
+            required: true,
+            is_enum: true,
+            options: ['QR', 'EFECTIVO', 'TARJETA'],
+        },
+        {
+            name: 'estado',
+            label: 'Estado de la Orden',
+            type: 'select',
+            required: true,
+            is_enum: true,
+            options: ['PENDIENTE', 'ENTREGADO', 'CANCELADO'],
+        },
+        { name: 'observaciones', label: 'Observaciones', type: 'textarea', required: false },
+        { name: 'visible', label: 'Visible', type: 'checkbox' },
+        { name: 'total', label: 'Total', type: 'hidden', disabled: true },
+    ],
+    'orden_detalle': [
+        // Se utilizan los campos del primer bloque (son los únicos)
+        { name: 'id_producto', label: 'Producto', type: 'select', required: true, options_service: 'ProductoService' },
+        { name: 'cantidad', label: 'Cantidad', type: 'number', required: true, min: '1' },
+        { name: 'precio_unitario', label: 'Precio Unitario (Bs.)', type: 'number', step: '0.01', required: true, disabled: true },
+    ],
+    'departamento': [
+        // Se utilizan los campos del primer bloque (más completo con maxLength)
+        { name: 'nombre', label: 'Nombre del Departamento', type: 'text', required: true, maxLength: 50 },
+        { name: 'visible', label: '¿Es Visible?', type: 'checkbox', required: false },
+    ],
+    'municipio': [
+        // Se utilizan los campos del primer bloque (más completo con placeholder)
+        { name: 'nombre', label: 'Nombre del Municipio', type: 'text', required: true, placeholder: 'Ejem: El Alto' },
+        { name: 'id_departamento', label: 'Departamento', type: 'select', required: true, placeholder: 'Seleccione un Departamento' },
+        { name: 'visible', label: 'Visible', type: 'checkbox', required: false, disabled: true },
+    ],
+    'localidad': [
+        // Se utilizan los campos del primer bloque (más completo con dependencias)
+        { name: 'id_localidad', label: 'ID Localidad', type: 'text', disabled: true },
+        {
+            name: 'id_departamento',
+            label: 'Departamento',
+            type: 'select',
+            required: true,
+            placeholder: 'Seleccione un departamento',
+            serviceName: 'departamento'
+        },
+        {
+            name: 'id_municipio',
+            label: 'Municipio',
+            type: 'select',
+            required: true,
+            placeholder: 'Seleccione un municipio',
+            serviceName: 'municipio',
+            dependsOn: 'id_departamento'
+        },
+        { name: 'nombre', label: 'Nombre de la Localidad', type: 'text', required: true, maxLength: 100 },
+        { name: 'visible', label: 'Visible', type: 'checkbox', default: true, disabled: true }
+    ],
+    'zona': [
+        // Se utilizan los campos del primer bloque (más completo con dependencias)
+        { name: 'id_departamento', label: 'Departamento', type: 'select', required: true, placeholder: 'Seleccione un departamento' },
+        { name: 'id_municipio', label: 'Municipio', type: 'select', required: true, placeholder: 'Seleccione un municipio' },
+        {
+            name: 'id_localidad',
+            label: 'Localidad',
+            type: 'select',
+            required: true,
+            placeholder: 'Seleccione la Localidad'
+        },
+        { name: 'nombre', label: 'Nombre de la Zona', type: 'text', required: true, placeholder: 'Ej: Zona Central' },
+        { name: 'visible', label: 'Visible', type: 'hidden', default: true, disabled: true }
     ],
 };
