@@ -30,7 +30,11 @@ export class ColumnConfigDashboard {
         this.modalCloseBtn = document.getElementById('close-modal-btn') || document.getElementById('modal-close-btn');
 
         this.columnManager = new ColumnVisibilityManager();
-        this.adminManager = new AdminProductManager(displayElementId, modalId);
+
+        // MODIFICACIÓN: Crear el callback y pasarlo a AdminProductManager
+        const backToDashboard = this.loadConfigurationPanel.bind(this);
+        this.adminManager = new AdminProductManager(displayElementId, modalId, backToDashboard);
+        // FIN MODIFICACIÓN
 
         this.setupModalListeners();
     }
@@ -123,7 +127,7 @@ export class ColumnConfigDashboard {
         }
 
         this.adminManager.currentTable = tableName;
-        
+
         this.adminManager.currentLinkText = tableName.charAt(0).toUpperCase() + tableName.slice(1).replace(/_/g, ' ');
 
         this.adminManager.loadTable();

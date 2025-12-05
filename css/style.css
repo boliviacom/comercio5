@@ -1,32 +1,3 @@
-
-.sidebar {
-    width: var(--sidebar-width-expanded);
-    background-color: var(--secondary-color);
-    color: var(--text-color-light);
-    transition: width 0.3s ease;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    font-weight: 400;
-}
-
-.sidebar.collapsed {
-    width: var(--sidebar-width-collapsed);
-}
-
-.sidebar-header {
-    height: var(--header-height);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    white-space: nowrap;
-}
-
 .logo-text {
     font-size: 1.12em;
     font-weight: 800;
@@ -34,118 +5,6 @@
     transition: opacity 0.3s ease, width 0.3s ease;
 }
 
-.sidebar.collapsed .logo-text {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-    padding: 0;
-}
-
-.toggle-btn {
-    background: none;
-    border: none;
-    color: var(--text-color-light);
-    font-size: 1.5em;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 5px;
-    transition: background-color 0.2s;
-}
-
-.toggle-btn:hover {
-    background-color: var(--hover-color);
-}
-
-.sidebar-nav {
-    padding-top: 10px;
-}
-
-.nav-title {
-    font-size: 0.8em;
-    color: rgba(255, 255, 255, 0.7);
-    padding: 10px 20px 5px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: opacity 0.3s ease, height 0.3s ease, padding 0.3s ease;
-    font-weight: 600;
-}
-
-.sidebar.collapsed .nav-title {
-    opacity: 0;
-    height: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-.nav-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.nav-list li {
-    margin: 3px 0;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    color: var(--text-color-light);
-    text-decoration: none;
-    padding: 12px 20px;
-    transition: background-color 0.2s, color 0.2s;
-    border-left: 5px solid transparent;
-    font-weight: 500;
-}
-
-.nav-link:hover {
-    background-color: var(--hover-color);
-    color: #fff;
-    border-left-color: var(--primary-color);
-}
-
-.nav-link.active {
-    background-color: var(--hover-color);
-    color: #fff;
-    border-left-color: var(--primary-color);
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-.nav-link i {
-    font-size: 1.2em;
-    width: 30px;
-    text-align: center;
-}
-
-.nav-link span {
-    margin-left: 15px;
-    opacity: 1;
-    transition: opacity 0.3s ease, margin-left 0.3s ease;
-    white-space: nowrap;
-}
-
-.sidebar.collapsed .nav-link span {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-    margin-left: 0;
-}
-
-.nav-link.logout {
-    border-left-color: #e74c3c !important;
-}
-
-.nav-link.logout:hover,
-.nav-link.logout.active {
-    background-color: #c0392b;
-    border-left-color: #e74c3c !important;
-}
-
-.nav-separator {
-    height: 1px;
-    background-color: rgba(255, 255, 255, 0.15);
-    margin: 15px 20px;
-}
 
 .main-content {
     flex-grow: 1;
@@ -164,23 +23,9 @@
 }
 
 @media (max-width: 768px) {
-    .sidebar {
-        width: var(--sidebar-width-collapsed);
-    }
-
-    .sidebar:not(.collapsed) {
-        position: fixed;
-        height: 100vh;
-        z-index: 1000;
-        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.4);
-    }
 
     .main-content {
         padding: 20px;
-    }
-
-    .sidebar.collapsed .toggle-btn {
-        margin-left: -5px;
     }
 }
 
@@ -246,7 +91,6 @@
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-align: center;
 }
 
 .data-table th:nth-child(7),
@@ -333,7 +177,8 @@
 
 /* Primary Button (Crear Nuevo) */
 .btn-primary,
-.btn-create {
+.btn-create,
+.btn-secondary {
     background-color: var(--primary-color);
     color: white;
 }
@@ -593,6 +438,7 @@
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 14px;
+    margin-bottom: 1rem;
 }
 
 .input-select-filter {
@@ -651,6 +497,7 @@
 .record-count-wrapper {
     white-space: nowrap;
     flex-shrink: 0;
+    text-align: end;
 }
 
 .switch {
@@ -711,73 +558,178 @@ input:checked.slider:before {
     opacity: 0.5;
 }
 
-/* ---------------------------------------------------------------------- */
-/* SUBMENU/TOGGLE STYLES */
-/* ---------------------------------------------------------------------- */
+/* --- Estilos para el formulario modal en dos columnas --- */
 
-/* Ocultar el submenú por defecto */
-.sidebar .submenu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+/* Asegura un ancho razonable para el modal de productos */
+.modal-content {
+    max-width: 700px;
+    width: 90%;
 }
 
-/* Mostrar el submenú cuando no tiene la clase 'collapsed' (la clase que JS remueve) */
-.sidebar .submenu:not(.collapsed) {
-    max-height: 200px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+/* Contenedor principal del formulario con Grid Layout */
+#crud-form.modal-grid-form {
+    display: grid;
+    /* Define dos columnas de igual ancho y una brecha de 30px */
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 30px;
 }
 
-/* Estilo para los enlaces dentro del submenú */
-.sidebar .submenu .nav-link {
-    padding-left: 35px;
-    font-size: 0.9em;
-    opacity: 0.85;
+.modal-grid-form .form-column {
+    /* Las columnas de campos ocupan 1 celda cada una */
+    grid-column: span 1;
 }
 
-/* Estilo para el enlace principal del submenú (Producto) */
-.submenu-toggle {
+.modal-grid-form .grid-footer {
+    /* El footer debe abarcar ambas columnas */
+    grid-column: 1 / -1;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
-/* Estilo para el ícono de flecha (chevron) */
-.submenu-toggle .submenu-icon {
-    margin-left: auto;
-    transition: transform 0.3s ease;
-    width: auto !important;
+/* Estilo específico para la carga de imagen (imitando su imagen) */
+.upload-image-container .file-upload-area {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    background-color: #f9f9f9;
+    position: relative;
+    overflow: hidden;
 }
 
-/* ---------------------------------------------------------------------- */
-/* REGLAS CORREGIDAS PARA EL ESTADO COLAPSADO */
-/* ---------------------------------------------------------------------- */
-
-/* Ocultar el submenú completo al colapsar el sidebar (solución al problema visual) */
-.sidebar.collapsed .submenu {
-    max-height: 0 !important;
-    padding: 0 !important;
-    display: none;
+.upload-image-container .file-upload-area:hover {
+    border-color: var(--primary-color);
 }
 
-/* Ocultar el ícono de la flecha del submenú principal */
-.sidebar.collapsed .submenu-toggle .submenu-icon {
-    display: none;
+/* Ocultar el input de archivo y mostrar el placeholder */
+.upload-image-container .file-upload-area input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
 }
 
-/* Centrar los íconos y quitar el padding para el modo colapsado */
-.sidebar.collapsed .nav-link {
-    /* Centra el ícono horizontalmente */
-    justify-content: center;
-    /* Ajusta el padding para una apariencia centrada con el ancho reducido */
-    padding: 12px 0px;
+.upload-placeholder i {
+    /* Icono de nube */
+    font-size: 3em;
+    color: #b0b0b0;
+    margin-bottom: 10px;
 }
 
-/* Asegurar que el ícono principal no tenga margen extra */
-.sidebar.collapsed .nav-link i {
-    margin-left: 0;
-    margin-right: 0;
+.upload-placeholder p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.upload-placeholder .file-info {
+    font-size: 0.8em;
+    color: #999;
+    margin-top: 5px;
+}
+
+/* Media Query para pantallas pequeñas */
+@media (max-width: 600px) {
+    #crud-form.modal-grid-form {
+        /* En pantallas pequeñas, apilar los campos en una sola columna */
+        grid-template-columns: 1fr;
+    }
+
+    .modal-grid-form .form-column {
+        grid-column: span 1;
+    }
+}
+
+/* --- Estilos para la Imagen Actual en el Modal de Edición --- */
+
+.image-actual-wrapper {
+    /* Contenedor del campo "Imagen Actual" */
+    margin-top: 20px;
+}
+
+.image-preview-item {
+    /* Contenedor de la imagen, nombre y botón de eliminar */
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #fcfcfc;
+}
+
+.image-preview-item img {
+    /* Estilo de la imagen de vista previa */
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-right: 15px;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.image-filename {
+    /* Nombre del archivo */
+    font-size: 0.9em;
+    color: #666;
+    flex-grow: 1;
+    /* Permite que ocupe el espacio */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-delete-image {
+    /* Botón de eliminar (rojo) */
+    color: #e74c3c;
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: transparent;
+    border: 1px solid #e74c3c20;
+}
+
+.btn-delete-image:hover {
+    background-color: #ffeaea;
+}
+
+/* Ajuste para que el input de archivo no se vea en el área de drop */
+.upload-image-container .file-upload-area {
+    /* Ya lo tienes arriba, pero asegúrate de que el input está bien oculto: */
+    position: relative;
+    padding: 20px;
+}
+
+.upload-image-container .file-upload-area input[type="file"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    /* Esto es clave para ocultar y mantener el área clicleable */
+    cursor: pointer;
+    z-index: 10;
+}
+
+.product-details .product-name {
+    /* Fuerza que el contenido esté en una sola línea */
+    white-space: nowrap;
+
+    /* Oculta el texto que se desborda */
+    overflow: hidden;
+
+    /* Muestra puntos suspensivos donde el texto se trunca */
+    text-overflow: ellipsis;
+
+    /* Establece un ancho máximo para que ocurra el truncamiento */
+    max-width: 150px;
+    /* Ajusta este valor según el ancho deseado para 20 caracteres */
+    display: inline-block;
+    /* Necesario para que 'max-width' funcione en un 'span' */
 }

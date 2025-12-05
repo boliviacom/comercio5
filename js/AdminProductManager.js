@@ -12,7 +12,7 @@ const SEARCH_FILTER_CONTAINER_ID = 'product-search-filter-controls-wrapper';
 
 export class AdminProductManager {
 
-    constructor(displayElementId, modalId = 'crud-modal') {
+    constructor(displayElementId, modalId = 'crud-modal', backToDashboardCallback = null) {
         this.displayElement = document.getElementById(displayElementId);
         this.modal = document.getElementById(modalId);
         this.modalTitle = document.getElementById('modal-title');
@@ -35,6 +35,8 @@ export class AdminProductManager {
         this.categoryService = SERVICE_MAP['categoria'];
 
         this.globalToggleHandler = null;
+
+        this.backToDashboardCallback = backToDashboardCallback;
 
         this.setupModalListeners();
     }
@@ -74,7 +76,7 @@ export class AdminProductManager {
         }
 
         if (!this.categoryService) {
-            console.error("CategoriaService no está disponible.");
+            
             return {};
         }
 
@@ -90,7 +92,7 @@ export class AdminProductManager {
             return map;
 
         } catch (e) {
-            console.error("Error al construir el mapa de categorías:", e);
+            
             return {};
         }
     }
@@ -100,7 +102,7 @@ export class AdminProductManager {
         const term = this.currentSearchTerm.toLowerCase().trim();
         const categoryId = this.currentCategoryId;
 
-        console.log(`[DEBUG: Filter] Término de búsqueda: '${term}' | ID de Categoría: '${categoryId}'`);
+        
 
         let filteredData = data;
 
@@ -118,10 +120,13 @@ export class AdminProductManager {
             const filterId = String(categoryId);
 
             filteredData = filteredData.filter(row => {
+                
+                
+                
+                const directId = String(row.id_categoria ?? ''); 
 
-                const directId = String(row.id_categoria || '');
-
-                const nestedId = String(row.c && row.c.id ? row.c.id : '');
+                
+                const nestedId = String(row.c?.id ?? '');
 
                 const matches = directId === filterId || nestedId === filterId;
 
@@ -129,7 +134,7 @@ export class AdminProductManager {
             });
         }
 
-        console.log(`[DEBUG: Filter] Registros filtrados: ${filteredData.length} de ${this.fullData.length} totales.`);
+        
 
         return filteredData;
     }
@@ -244,28 +249,59 @@ export class AdminProductManager {
 
         const categoryFilterHtml = await this._renderCategoryFilter();
 
+        const backButtonHTML = this.backToDashboardCallback ?
+            `<div class="back-button-row-wrapper">
+                <button id="back-to-dashboard-btn" class="btn-secondary-action" title="Volver al Panel Principal de Administración">
+                    <i class="fas fa-arrow-left"></i> Volver al Panel
+                </button>
+            </div>` : '';
+
+        
+        const createAndBulkButtons = TABLES_ALLOWING_CREATE.includes(tableName) ?
+            `<div class="action-buttons-wrapper">
+                <button id="add-new-record-btn" class="btn-secondary-action" title="Añadir Nuevo ${linkText}">
+                    <i class="fas fa-plus"></i> Añadir Nuevo
+                </button>
+                <button id="bulk-upload-btn-trigger" class="btn-secondary-action" title="Carga Masiva de Productos">
+                    <i class="fas fa-upload"></i> Carga Masiva
+                </button>
+            </div>` : '';
+
+
         this.displayElement.innerHTML = `
-            <div class="table-actions">
-                <div class="header-controls-wrapper">
-                    <h2>Gestión de la Tabla: ${linkText}</h2>
-                    <div class="action-buttons">
+            ${backButtonHTML} 
+            
+            <div class="table-header-wrapper">
+                
+                <div class="header-title-actions-wrapper"> 
+                    <div class="header-and-counter-wrapper">
+                        <h2>Gestión de la Tabla: ${linkText}</h2>
+                        
+                    </div>
+                    ${createAndBulkButtons} 
+                    <div class="record-count-wrapper top-right-counter">
+                            <span class="record-count">Cargando...</span>
                         </div>
                 </div>
-                <div class="record-count-wrapper">
-                    <span class="record-count">Cargando...</span>
+
+                <div class="filter-controls-container-row"> 
+                    <div id="${SEARCH_FILTER_CONTAINER_ID}" class="filter-controls-container">
+                        ${this._renderSearchBoxContent()} 
+                        ${categoryFilterHtml} 
+                    </div>
                 </div>
+
             </div>
             
-            <div id="${SEARCH_FILTER_CONTAINER_ID}" class="filter-controls-container">
-                ${this._renderSearchBoxContent()} 
-                ${categoryFilterHtml} </div>
-
             <div id="table-content-wrapper">
                 ${this.loadingHTML}
             </div>
         `;
 
         this.setupSearchAndFilterListeners();
+        this.setupBackButtonListener();
+        this.setupCreateAndBulkButtonListeners(tableName);
+
         if (tableName === 'producto') {
             this.setupGlobalControlsListeners(tableName);
         }
@@ -284,13 +320,10 @@ export class AdminProductManager {
             this.fullData = data;
 
             if (this.fullData.length > 0) {
-                console.log("[DEBUG: Data Structure] Ejemplo de un producto:", this.fullData[0]);
+                
 
                 if (this.fullData[0].id_categoria === undefined && this.fullData[0].c?.id === undefined) {
-                    console.warn(
-                        "⚠️ ¡ATENCIÓN! El filtro de categoría está FALLANDO porque el campo 'id_categoria' (o el objeto de JOIN 'c.id') no se encuentra en la data del producto.",
-                        "Por favor, revise su 'ProductoService.fetchData()' y asegúrese de que el campo 'id_categoria' esté incluido en su consulta SELECT o JOIN."
-                    );
+                    
                 }
             }
 
@@ -299,8 +332,33 @@ export class AdminProductManager {
             this.renderCurrentPage();
 
         } catch (e) {
-            console.error('Error al cargar datos:', e);
+            
             tableContentWrapper.innerHTML = `<p class="error-message">Error al cargar la tabla ${linkText}: ${e.message}</p>`;
+        }
+    }
+
+    setupBackButtonListener() {
+        const backButton = document.getElementById('back-to-dashboard-btn');
+        if (backButton && this.backToDashboardCallback) {
+            backButton.addEventListener('click', () => {
+                this.backToDashboardCallback();
+            });
+        }
+    }
+
+    setupCreateAndBulkButtonListeners(tableName) {
+        const createButton = document.getElementById('add-new-record-btn');
+        if (createButton) {
+            createButton.addEventListener('click', () => {
+                this.showForm(tableName, 'create');
+            });
+        }
+        
+        const bulkUploadButton = document.getElementById('bulk-upload-btn-trigger');
+        if (bulkUploadButton) {
+            bulkUploadButton.addEventListener('click', () => {
+                this.showBulkUploadForm();
+            });
         }
     }
 
@@ -327,7 +385,8 @@ export class AdminProductManager {
         const tableWrapper = this.displayElement.querySelector('#table-content-wrapper');
         const isTableDrawn = tableWrapper && tableWrapper.querySelector('.data-table');
 
-        if (!isTableDrawn || dataSlice.length === 0 && this.currentSearchTerm) {
+        if (!isTableDrawn || dataSlice.length === 0 && (this.currentSearchTerm || this.currentCategoryId)) {
+            
             this.renderTable(tableName, linkText, dataSlice, true, config.headers, totalRecords, totalPages);
             this.enableCrudListeners(tableName);
         } else {
@@ -356,6 +415,27 @@ export class AdminProductManager {
         `;
     }
 
+    
+    _getFileNameFromUrl(url) {
+        if (!url) return 'Sin Imagen';
+        try {
+            
+            const match = url.match(/\/([^/?#]+)(?:\?.*)?$/);
+            if (match && match[1]) {
+                const cleanName = decodeURIComponent(match[1]).split('?')[0]; 
+                
+                
+                return cleanName.length > 30 ? cleanName.substring(0, 30) + '...' : cleanName;
+            }
+            
+            return url.substring(0, 30) + '...';
+
+        } catch (e) {
+            
+            return url.substring(0, 30) + '... (URL inválida)';
+        }
+    }
+
     renderRow(row, tableName, isCrudTable, indexOffset) {
         const config = REPORT_CONFIG[tableName];
         const rowId = row[config.id_key];
@@ -370,15 +450,18 @@ export class AdminProductManager {
         const habilitarWhatsApp = row.habilitar_whatsapp === true;
         const habilitarFormulario = row.habilitar_formulario === true;
 
+        
+        const imageInfo = this._getFileNameFromUrl(row.imagen_url); 
 
         let rowCells = `
             <td class="product-cell">
                 <div class="product-info-wrapper">
                     <div class="product-image">
-                        ${row.imagen_url ? `<img src="${row.imagen_url}" alt="Imagen">` : 'Sin Imagen'}
+                        ${row.imagen_url ? `<img src="${row.imagen_url}" alt="Imagen" title="Archivo: ${imageInfo}">` : 'Sin Imagen'}
                     </div>
                     <div class="product-details">
-                        <span class="product-name">${row.nombre ?? ''}</span>
+                        <span class="product-name">${(row.nombre ?? '').length > 20 ? (row.nombre ?? '').substring(0, 20) + '...' : row.nombre ?? ''}</span>
+                        <span class="product-file-name" title="Nombre del archivo: ${imageInfo}">${imageInfo}</span>
                         <span class="product-description">${(row.descripcion ?? '').substring(0, 50)}...</span>
                     </div>
                 </div>
@@ -500,7 +583,7 @@ export class AdminProductManager {
             });
 
         } catch (e) {
-            console.error("Error al cargar categorías para el filtro:", e);
+            
             return `
                 <div class="form-group filter-select-error">
                     <label>Categoría:</label>
@@ -544,7 +627,7 @@ export class AdminProductManager {
         if (categorySelect) {
             categorySelect.onchange = () => {
                 this.currentCategoryId = categorySelect.value;
-                console.log(`[DEBUG: Listener] Categoría seleccionada, ID: ${this.currentCategoryId}`);
+                
                 this.currentPage = 1;
                 this.renderCurrentPage();
             };
@@ -645,7 +728,7 @@ export class AdminProductManager {
             this.renderCurrentPage();
 
         } catch (error) {
-            console.error(`Error al actualizar globalmente el campo ${fieldName} en productos filtrados:`, error);
+            
             alert(`❌ Error al actualizar globalmente: ${error.message}. Se revertirá el interruptor.`);
             inputElement.checked = !newValue;
         } finally {
@@ -687,7 +770,7 @@ export class AdminProductManager {
             this.renderCurrentPage();
 
         } catch (error) {
-            console.error(`Error actualizando ${fieldName} para ID ${id}:`, error);
+            
             alert(`Error al actualizar el campo: ${error.message}. Se revertirá el interruptor.`);
             inputElement.checked = originalValue;
         } finally {
@@ -731,13 +814,18 @@ export class AdminProductManager {
                 try {
                     categoryOptions = await categoryService.fetchData();
                 } catch (e) {
-                    console.error("Error al cargar categorías:", e);
+                    
                 }
             }
         }
 
+        const fieldsLeft = ['nombre', 'descripcion', 'id_categoria'];
+        const fieldsRight = ['precio', 'stock', 'file_upload'];
+        let formFieldsLeftHTML = '';
+        let formFieldsRightHTML = '';
+        let otherFieldsHTML = '';
 
-        const formFieldsHTML = configForm.map(field => {
+        const processField = (field) => {
             let currentValue = formData[field.name] ?? '';
             const requiredAttr = field.required ? 'required' : '';
             const stepAttr = field.step ? `step="${field.step}"` : '';
@@ -757,17 +845,36 @@ export class AdminProductManager {
                 `;
             }
 
-            if (field.type === 'hidden') {
-                return `<input type="hidden" id="${field.name}" name="${field.name}" value="${currentValue}">`;
-            }
-
             if (field.name === 'file_upload') {
                 const currentImage = formData.imagen_url || '';
+
+                const imagePreviewHTML = (action === 'edit' && currentImage) ? `
+                    <div class="image-preview-wrapper">
+                        <label style="font-weight: 600; color: #555; font-size: 0.9em; margin-top: 15px; display: block;">Imagen Actual</label>
+                        <div class="image-current-info" id="current-image-info-${id}" style="display: flex; align-items: center; gap: 10px; border: 1px solid #ddd; padding: 5px; border-radius: 5px; justify-content: space-between;">
+                            <div class="image-thumbnail" style="flex-shrink: 0;">
+                                <img src="${currentImage}" alt="Imagen Actual" style="max-width: 50px; max-height: 50px; object-fit: contain;">
+                            </div>
+                            <span class="image-filename" style="flex-grow: 1; font-size: 0.9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${this._getFileNameFromUrl(currentImage)}</span>
+                            <button type="button" class="btn-action btn-delete-details delete-image-btn" data-id="${id}" title="Eliminar Imagen Actual" style="flex-shrink: 0; margin: 0; padding: 5px;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                ` : '';
+
                 return `
-                    <div class="form-group">
-                        <label for="${field.name}">${field.label}:</label>
-                        <input type="file" class="input-file" id="${field.name}" name="${field.name}" accept="image/png, image/jpeg" ${action === 'create' ? requiredAttr : ''}>
-                        ${currentImage ? `<div class="image-preview" style="margin-top: 10px;">Imagen Actual: <img src="${currentImage}" style="max-width: 100px; max-height: 100px;"></div>` : ''}
+                    <div class="form-group upload-image-container">
+                        <label for="${field.name}">Subir Imagen (Max 2MB):</label>
+                        <div class="file-upload-area">
+                            <input type="file" class="input-file" id="${field.name}" name="${field.name}" accept="image/png, image/jpeg, image/gif" ${action === 'create' && field.required ? requiredAttr : ''}>
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Subir un archivo o arrastrar y soltar</p>
+                                <p class="file-info">PNG, JPG, GIF hasta 2MB</p>
+                            </div>
+                        </div>
+                        ${imagePreviewHTML}
                     </div>
                 `;
             }
@@ -800,22 +907,55 @@ export class AdminProductManager {
                 `;
             }
 
+            if (field.type === 'hidden') {
+                return `<input type="hidden" id="${field.name}" name="${field.name}" value="${currentValue}">`;
+            }
+
+            
+            let maxLengthAttr = '';
+            if (field.name === 'nombre') {
+                maxLengthAttr = 'maxlength="20"';
+            }
+
             return `
                 <div class="form-group">
                     <label for="${field.name}">${field.label}:</label>
-                    <input type="${field.type}" class="input-text${numberClass}" id="${field.name}" name="${field.name}" value="${currentValue}" ${requiredAttr} ${stepAttr} placeholder="${placeholderText}" ${disabledAttrBase}>
+                    <input type="${field.type}" class="input-text${numberClass}" id="${field.name}" name="${field.name}" value="${currentValue}" ${requiredAttr} ${stepAttr} placeholder="${placeholderText}" ${disabledAttrBase} ${maxLengthAttr}>
                 </div>
             `;
-        }).join('');
+        };
+
+        configForm.forEach(field => {
+            let fieldHTML = processField(field);
+
+            if (field.type === 'hidden') {
+                otherFieldsHTML += fieldHTML;
+                return;
+            }
+
+            if (fieldsLeft.includes(field.name)) {
+                formFieldsLeftHTML += fieldHTML;
+            } else if (fieldsRight.includes(field.name)) {
+                formFieldsRightHTML += fieldHTML;
+            } else {
+                otherFieldsHTML += fieldHTML;
+            }
+        });
 
         const formHTML = `
-            <form id="crud-form" enctype="multipart/form-data">
-                ${formFieldsHTML}
-                <div class="form-footer">
-                    <button type="submit" class="btn-primary-modal">
-                        <i class="fas fa-save"></i> ${action === 'create' ? 'Crear' : 'Guardar Cambios'}
-                    </button>
+            <form id="crud-form" class="modal-grid-form" enctype="multipart/form-data">
+                ${otherFieldsHTML}
+                <div class="form-column column-left">
+                    ${formFieldsLeftHTML}
+                </div>
+                <div class="form-column column-right">
+                    ${formFieldsRightHTML}
+                </div>
+                <div class="form-footer grid-footer">
                     <button type="button" class="btn-cancel-modal" id="form-cancel-btn">Cancelar</button>
+                    <button type="submit" class="btn-primary-modal">
+                        <i class="fas fa-save"></i> ${action === 'create' ? 'Crear Producto' : 'Guardar Cambios'}
+                    </button>
                 </div>
             </form>
         `;
@@ -830,25 +970,98 @@ export class AdminProductManager {
         document.getElementById('form-cancel-btn').addEventListener('click', () => {
             this.modal.classList.remove('active');
         });
+
+        if (action === 'edit' && id) {
+            const deleteImageBtn = this.modalBody.querySelector('.delete-image-btn');
+            if (deleteImageBtn) {
+                deleteImageBtn.addEventListener('click', (e) => {
+                    const productId = e.currentTarget.getAttribute('data-id');
+                    this.deleteProductImage(productId);
+                });
+            }
+        }
     }
 
-    async showBulkUploadForm() {
+    async deleteProductImage(id) {
+        const service = SERVICE_MAP['producto'];
+        const productData = this.fullData.find(d => String(d[REPORT_CONFIG['producto'].id_key]) === id);
+        const fileName = this._getFileNameFromUrl(productData?.imagen_url) || 'la imagen actual';
+
+        if (!service || !service.deleteImage) {
+            alert('Error: La función de eliminación de imagen no está disponible en ProductoService.');
+            return;
+        }
+
+        const confirmationText = `¿Está seguro de que desea eliminar permanentemente la imagen '${fileName}' de la base de datos? Esta acción es irreversible.`;
+
+        if (!confirm(confirmationText)) {
+            return;
+        }
+
+        const deleteButton = this.modalBody.querySelector('.delete-image-btn');
+        if (deleteButton) {
+            deleteButton.disabled = true;
+            deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            deleteButton.classList.add('loading');
+        }
+
+        try {
+            await service.deleteImage(id);
+
+            const imageInfoWrapper = document.getElementById(`current-image-info-${id}`);
+            if (imageInfoWrapper) {
+                const previewWrapper = imageInfoWrapper.closest('.image-preview-wrapper');
+                if (previewWrapper) {
+                    previewWrapper.remove();
+                }
+            }
+
+            const record = this.fullData.find(d => String(d[REPORT_CONFIG['producto'].id_key]) === id);
+            if (record) {
+                record.imagen_url = '';
+            }
+
+            alert('✅ Imagen eliminada con éxito. Para que el cambio sea definitivo, recuerde presionar "Guardar Cambios".');
+
+        } catch (error) {
+            
+            alert(`❌ Error al eliminar la imagen: ${error.message}`);
+        } finally {
+            if (deleteButton) {
+                deleteButton.disabled = false;
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteButton.classList.remove('loading');
+            }
+        }
+    }
+
+    
+    
+    
+    showBulkUploadForm() {
         this.modalTitle.textContent = 'Carga Masiva de Productos (CSV/Excel)';
         this.modalBody.innerHTML = `
             <form id="bulk-upload-form">
-                <div class="form-group">
+                <p class="info-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Asegúrese de que su archivo CSV incluye las columnas necesarias. Puede usar <strong>'id_categoria'</strong> (ID numérico) o <strong>'nombre_categoria'</strong> (nombre exacto) para la categoría.
+                </p>
+                <div class="form-group upload-image-container">
                     <label for="bulk-file">Archivo de Carga (.csv, .xlsx):</label>
-                    <input type="file" id="bulk-file" name="bulk-file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required>
-                    <p class="info-message" style="margin-top: 10px;">
-                        ⚠️ Asegúrese de que su archivo incluye una columna llamada <strong>'id_categoria'</strong> 
-                        con el ID numérico, o <strong>'nombre_categoria'</strong> con el nombre exacto de la categoría.
-                    </p>
+                    <div class="file-upload-area">
+                        <input type="file" class="input-file" id="bulk-file" name="bulk-file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" required>
+                        <div class="upload-placeholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Subir un archivo o arrastrar y soltar</p>
+                            <p class="file-info">CSV, XLSX hasta 5MB</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-footer">
+                    <button type="button" class="btn-cancel-modal" id="bulk-cancel-btn">Cancelar</button>
                     <button type="submit" class="btn-primary-modal" id="bulk-upload-btn">
                         <i class="fas fa-file-import"></i> Procesar Archivo
                     </button>
-                    <button type="button" class="btn-cancel-modal" id="bulk-cancel-btn">Cancelar</button>
                 </div>
             </form>
         `;
@@ -869,21 +1082,19 @@ export class AdminProductManager {
         });
     }
 
+    
+    
     async handleBulkUploadSubmit(file) {
-        console.log('--- INICIO: Proceso de Carga Masiva ---');
-        console.log('Archivo a procesar:', file.name, 'Tipo:', file.type);
+        
 
         const submitButton = document.getElementById('bulk-upload-btn');
         submitButton.disabled = true;
         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Leyendo archivo...';
 
         const productService = SERVICE_MAP['producto'];
-        const categoryMap = await this._getCategoryNameMap();
-        console.log('Mapa de categorías cargado (para mediador):', categoryMap);
 
-        if (Object.keys(categoryMap).length === 0) {
-            console.error('ERROR: El mapa de categorías está vacío. No se puede continuar.');
-            alert('❌ No se pudo cargar el mapa de categorías. Intente de nuevo más tarde.');
+        if (typeof Papa === 'undefined') {
+            alert("❌ Error: La librería PapaParse (para CSV) no está cargada. No se puede procesar el archivo.");
             submitButton.disabled = false;
             submitButton.innerHTML = '<i class="fas fas fa-file-import"></i> Procesar Archivo';
             return;
@@ -892,10 +1103,6 @@ export class AdminProductManager {
         let parsedData = [];
 
         try {
-            if (typeof Papa === 'undefined') {
-                throw new Error("PapaParse no está cargado. Asegúrate de incluir la librería en tu HTML.");
-            }
-
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Parseando archivo...';
 
             parsedData = await new Promise((resolve, reject) => {
@@ -904,9 +1111,8 @@ export class AdminProductManager {
                     dynamicTyping: true,
                     skipEmptyLines: true,
                     complete: (results) => {
-                        if (results.errors.length) {
-                            console.warn("Advertencias/Errores durante el parseo:", results.errors);
-                        }
+                        
+                        
                         const validData = results.data.filter(row => row && row.nombre && String(row.nombre).trim() !== '');
                         resolve(validData);
                     },
@@ -919,61 +1125,63 @@ export class AdminProductManager {
             }
 
         } catch (parseError) {
-            console.error('❌ ERROR DE PARSING:', parseError);
+            
             alert(`❌ Error al leer el archivo: ${parseError.message}`);
             submitButton.disabled = false;
             submitButton.innerHTML = '<i class="fas fa-file-import"></i> Procesar Archivo';
             return;
         }
-
-        console.log('Datos parseados del archivo listos para procesar:', parsedData);
-
+        
+        const categoryMap = await this._getCategoryNameMap();
+        if (Object.keys(categoryMap).length === 0) {
+            alert('❌ No se pudo cargar el mapa de categorías. Verifique la conexión.');
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="fas fas fa-file-import"></i> Procesar Archivo';
+            return;
+        }
+        
         let productsToInsert = [];
         let failedRecords = [];
 
         try {
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Validando y Mapeando...';
 
-            for (const [index, record] of parsedData.entries()) {
-                console.log(`--- Procesando registro #${index + 1} (${record.nombre || 'Nombre no definido'}) ---`);
-
+            for (const record of parsedData) {
                 let categoryId = null;
 
+                
                 if (record.id_categoria && parseInt(record.id_categoria) > 0) {
                     categoryId = parseInt(record.id_categoria);
-                    console.log('ID de categoría (leído directamente del CSV):', categoryId);
-
-                } else if (record.nombre_categoria) {
+                } 
+                
+                else if (record.nombre_categoria) {
                     const categoryName = this._normalizeString(record.nombre_categoria);
                     categoryId = categoryMap[categoryName];
-                    console.log(`Nombre de categoría en CSV: "${record.nombre_categoria}" (Buscado como: "${categoryName}")`);
-                    console.log('ID de categoría resultante (mediador):', categoryId);
                 }
 
                 if (categoryId) {
                     const productDataToSave = {
                         ...record,
                         id_categoria: categoryId,
+                        
                         precio: parseFloat(record.precio) || 0,
                         stock: parseInt(record.stock) || 0,
-                        visible: record.visible !== undefined ? record.visible : true,
-                        mostrar_precio: record.mostrar_precio !== undefined ? record.mostrar_precio : true,
-                        habilitar_whatsapp: record.habilitar_whatsapp !== undefined ? record.habilitar_whatsapp : false,
-                        habilitar_formulario: record.habilitar_formulario !== undefined ? record.habilitar_formulario : false,
+                        
+                        visible: record.visible !== undefined ? (String(record.visible).toLowerCase() === 'true' || record.visible === 1) : true,
+                        mostrar_precio: record.mostrar_precio !== undefined ? (String(record.mostrar_precio).toLowerCase() === 'true' || record.mostrar_precio === 1) : true,
+                        habilitar_whatsapp: record.habilitar_whatsapp !== undefined ? (String(record.habilitar_whatsapp).toLowerCase() === 'true' || record.habilitar_whatsapp === 1) : false,
+                        habilitar_formulario: record.habilitar_formulario !== undefined ? (String(record.habilitar_formulario).toLowerCase() === 'true' || record.habilitar_formulario === 1) : false,
                         imagen_url: record.imagen_url || ''
                     };
 
                     delete productDataToSave.nombre_categoria;
-
-                    console.log('DATOS LISTOS PARA EL BULK INSERT:', productDataToSave);
                     productsToInsert.push(productDataToSave);
 
                 } else {
                     failedRecords.push({
                         ...record,
-                        error: `No se encontró 'id_categoria' válido ni 'nombre_categoria' coincidente. (Valor actual: ${record.id_categoria || record.nombre_categoria || 'N/A'})`
+                        error: `No se encontró 'id_categoria' válido ni 'nombre_categoria' coincidente.`
                     });
-                    console.warn('REGISTRO FALLIDO (Falta ID o Categoría no encontrada):', record);
                 }
             }
 
@@ -981,28 +1189,33 @@ export class AdminProductManager {
             if (productsToInsert.length > 0) {
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Insertando datos masivamente...';
 
+                
                 await productService.bulkCreate(productsToInsert);
 
                 successfulUploads = productsToInsert.length;
             }
 
-            console.log('--- FIN: Resumen del Proceso ---');
-            console.log('Cargas exitosas:', successfulUploads);
-            console.log('Registros fallidos:', failedRecords.length, failedRecords);
-
             this.modal.classList.remove('active');
-            alert(`✅ Proceso finalizado. Subidos con éxito: ${successfulUploads}. Fallidos: ${failedRecords.length}. Revise la consola (F12) para detalles de los fallidos.`);
+            alert(`✅ Proceso finalizado. Subidos con éxito: ${successfulUploads}. Fallidos: ${failedRecords.length}.`);
+
+            if (failedRecords.length > 0) {
+                 
+                 alert(`⚠️ Hubo registros fallidos. Revise la consola (F12) para ver los detalles de los ${failedRecords.length} productos que no se pudieron cargar.`);
+            }
 
             await this.loadTable();
 
         } catch (error) {
-            console.error('❌ Error crítico durante la carga masiva (Bulk Insert):', error);
+            
             alert(`❌ Error crítico en el procesamiento: ${error.message}`);
         } finally {
             submitButton.disabled = false;
             submitButton.innerHTML = '<i class="fas fa-file-import"></i> Procesar Archivo';
         }
     }
+    
+    
+    
 
 
     async handleFormSubmit(tableName, action, id = null) {
@@ -1058,11 +1271,11 @@ export class AdminProductManager {
             await this.loadTable();
 
         } catch (error) {
-            console.error(`Error al ${action} el registro:`, error);
+            
             alert(`❌ Error al guardar el registro: ${error.message}`);
         } finally {
             submitButton.disabled = false;
-            submitButton.innerHTML = `<i class="fas fa-save"></i> ${isEdit ? 'Guardar Cambios' : 'Crear'}`;
+            submitButton.innerHTML = `<i class="fas fa-save"></i> ${isEdit ? 'Guardar Cambios' : 'Crear Producto'}`;
         }
     }
 
@@ -1080,7 +1293,7 @@ export class AdminProductManager {
                 alert(`Registro ${!isVisible ? 'reactivado' : 'eliminado/inactivado'} con éxito.`);
                 await this.loadTable();
             } catch (error) {
-                console.error("Error toggling visibility:", error);
+                
                 alert("Error al actualizar la visibilidad del registro.");
             }
         }

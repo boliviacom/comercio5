@@ -1078,23 +1078,30 @@ body.forest-green .global-controls-row td {
 body.forest-green .btn-action:hover {
     background-color: #C5E1A5;
 }
+
 /* Estilos para el contenedor del filtro y búsqueda */
 .filter-controls-container {
-    display: flex; /* Alinea la caja de búsqueda y el filtro de categoría horizontalmente */
-    gap: 20px; /* Espacio entre los controles */
+    display: flex;
+    /* Alinea la caja de búsqueda y el filtro de categoría horizontalmente */
+    gap: 20px;
+    /* Espacio entre los controles */
     margin-bottom: 20px;
     padding: 15px;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
-    align-items: flex-end; /* Alinea los elementos al final (útil si hay etiquetas de diferentes alturas) */
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas más pequeñas */
+    align-items: flex-end;
+    /* Alinea los elementos al final (útil si hay etiquetas de diferentes alturas) */
+    flex-wrap: wrap;
+    /* Permite que los elementos se envuelvan en pantallas más pequeñas */
 }
 
 /* Estilos para la caja de búsqueda */
 .search-box {
-    flex-grow: 1; /* Permite que la caja de búsqueda ocupe el espacio restante */
-    min-width: 250px; /* Ancho mínimo para la caja de búsqueda */
+    flex-grow: 1;
+    /* Permite que la caja de búsqueda ocupe el espacio restante */
+    min-width: 250px;
+    /* Ancho mínimo para la caja de búsqueda */
 }
 
 .input-group {
@@ -1105,7 +1112,8 @@ body.forest-green .btn-action:hover {
 
 .input-text-search {
     width: 100%;
-    padding: 10px 10px 10px 40px; /* Más padding a la izquierda para el ícono */
+    padding: 10px 10px 10px 40px;
+    /* Más padding a la izquierda para el ícono */
     border: 1px solid #ccc;
     border-radius: 4px;
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -1122,13 +1130,15 @@ body.forest-green .btn-action:hover {
     left: 15px;
     color: #888;
     font-size: 16px;
-    pointer-events: none; /* Asegura que el clic pase al input */
+    pointer-events: none;
+    /* Asegura que el clic pase al input */
 }
 
 /* Estilos para el filtro de categoría (el SELECT) */
 .form-group {
     display: flex;
-    flex-direction: column; /* Coloca la etiqueta encima del select */
+    flex-direction: column;
+    /* Coloca la etiqueta encima del select */
 }
 
 .form-group label {
@@ -1143,11 +1153,14 @@ body.forest-green .btn-action:hover {
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: white;
-    appearance: none; /* Remueve la flecha de select nativa */
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>'); /* Flecha SVG personalizada */
+    appearance: none;
+    /* Remueve la flecha de select nativa */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    /* Flecha SVG personalizada */
     background-repeat: no-repeat;
     background-position: right 10px center;
-    padding-right: 35px; /* Espacio para la flecha */
+    padding-right: 35px;
+    /* Espacio para la flecha */
     cursor: pointer;
     min-width: 180px;
 }
@@ -1160,4 +1173,72 @@ body.forest-green .btn-action:hover {
     color: #721c24;
 }
 
-/* Asegúrate de que los íconos (como .fas) estén cargados, por ejemplo, con Font Awesome. */
+/* Contenedor para el botón de volver */
+.back-button-row-wrapper {
+    margin-bottom: 20px;
+    /* Espacio de separación antes del título de la tabla */
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Estilos para el botón de Volver al Panel (clase .btn-secondary-action) */
+.btn-secondary-action,
+.btn-primary-action {
+    /* Apariencia */
+    background-color: var(--primary-color);
+    /* Fondo gris claro */
+    color: var(--text-color-light);
+    /* Texto oscuro */
+    border: 1px solid #ccc;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    /* Diseño y Distribución */
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+
+    /* Flexbox para alinear el ícono y el texto */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    /* Espacio entre el ícono y el texto */
+
+    /* Transición suave */
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Estilos al pasar el mouse (Hover) */
+.btn-secondary-action:hover,
+.btn-primary-action:hover {
+    background-color: var(--secondary-color);
+    /* Fondo ligeramente más oscuro */
+    border-color: var(--text-color-light);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos al estar activo (Click/Pulsar) */
+.btn-secondary-action:active,
+.btn-primary-action:active {
+    background-color: #d0d0d0;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    /* Efecto de "presionado" */
+    transform: translateY(1px);
+}
+
+/* Estilo para el ícono */
+.btn-secondary-action i {
+    font-size: 16px;
+    margin-right: 0;
+    /* Ya usamos 'gap' en el contenedor flex */
+}
+
+.header-title-actions-wrapper {
+    display: flex;
+    align-items: center;
+    /* Centra el botón y el título verticalmente */
+    gap: 20px;
+    /* Añade un espacio entre el título y el botón */
+}
