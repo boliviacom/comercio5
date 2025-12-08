@@ -1,6 +1,10 @@
 import { AdminProductManager } from './AdminProductManager.js';
 import { ColumnVisibilityManager } from './ColumnVisibilityManager.js';
 import { REPORT_CONFIG } from './config/tableConfigs.js';
+import { AdminCategoryManager } from './AdminCategoryManager.js';
+import { AdminUserManager } from './AdminUserManager.js';
+import { AdminDireccionManager } from './AdminDireccionManager.js';
+import { AdminOrdenManager } from './AdminOrdenManager.js';
 
 const MODAL_ID = 'crud-modal';
 const DISPLAY_ELEMENT_ID = 'admin-display-area';
@@ -19,6 +23,14 @@ const TABLE_METADATA = {
 };
 const DEFAULT_METADATA = { icon: 'fas fa-table', description: 'Gestión de visibilidad de columnas por rol y usuario.' };
 
+const MANAGER_MAP = {
+    'categoria': AdminCategoryManager,
+    'producto': AdminProductManager,
+    'usuario': AdminUserManager,
+    'direccion': AdminDireccionManager,
+    'orden': AdminOrdenManager,
+};
+
 
 export class ColumnConfigDashboard {
 
@@ -31,21 +43,18 @@ export class ColumnConfigDashboard {
 
         this.columnManager = new ColumnVisibilityManager();
 
-        // MODIFICACIÓN: Crear el callback y pasarlo a AdminProductManager
-        const backToDashboard = this.loadConfigurationPanel.bind(this);
-        this.adminManager = new AdminProductManager(displayElementId, modalId, backToDashboard);
-        // FIN MODIFICACIÓN
+        this.dataManagerInstance = null;
 
         this.setupModalListeners();
     }
 
     setupModalListeners() {
         this.modalCloseBtn?.addEventListener('click', () => {
-            this.modal.classList.remove('active');
+            this.modal?.classList.remove('active');
             this.modalBody.innerHTML = '';
         });
 
-        this.modal.addEventListener('click', (e) => {
+        this.modal?.addEventListener('click', (e) => {
             if (e.target.id === this.modal.id) {
                 this.modal.classList.remove('active');
                 this.modalBody.innerHTML = '';
@@ -53,7 +62,7 @@ export class ColumnConfigDashboard {
         });
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.modal.classList.contains('active')) {
+            if (e.key === 'Escape' && this.modal?.classList.contains('active')) {
                 this.modal.classList.remove('active');
                 this.modalBody.innerHTML = '';
             }
@@ -68,7 +77,7 @@ export class ColumnConfigDashboard {
                 <div class="card-header">
                     <i class="${iconClass} card-icon"></i>
                 </div>
-                
+
                 <h3 class="card-title">Tabla de ${formattedName}</h3>
                 <p class="card-description">${description}</p>
                 <div class="card-footer button-group">
@@ -99,7 +108,7 @@ export class ColumnConfigDashboard {
                 <h1>Panel de Super Administrador</h1>
                 <p>Elija una tabla para gestionar su configuración o sus datos.</p>
             </div>
-            
+
             <div class="table-cards-grid">
                 ${tableCardsHTML}
             </div>
@@ -126,11 +135,22 @@ export class ColumnConfigDashboard {
             return;
         }
 
-        this.adminManager.currentTable = tableName;
+        const ManagerClass = MANAGER_MAP[tableName] || AdminProductManager;
 
-        this.adminManager.currentLinkText = tableName.charAt(0).toUpperCase() + tableName.slice(1).replace(/_/g, ' ');
+        const backToDashboard = this.loadConfigurationPanel.bind(this);
 
-        this.adminManager.loadTable();
+        if (!this.dataManagerInstance || !(this.dataManagerInstance instanceof ManagerClass)) {
+            this.dataManagerInstance = new ManagerClass(
+                DISPLAY_ELEMENT_ID,
+                MODAL_ID,
+                backToDashboard
+            );
+        }
+
+        this.dataManagerInstance.currentTable = tableName;
+        this.dataManagerInstance.currentLinkText = tableName.charAt(0).toUpperCase() + tableName.slice(1).replace(/_/g, ' ');
+
+        this.dataManagerInstance.loadTable();
     }
 
 

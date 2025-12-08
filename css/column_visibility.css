@@ -1,12 +1,37 @@
+:root {
+    /* Colores Descriptivos proporcionados por el usuario */
+    --color-teal: #2E5E55;
+    --color-mint: #5EC8AA;
+    --color-geek-text: #222;
+    --color-tagline: #2E5E55;
+    --color-nav-text: #666;
+    --header-height: 80px;
+    --color-bg-light: #ffffff;
+    --color-bg-section-light: #f9fafb;
+    --color-text-dark: #1f2937;
+    --color-text-mid: #6b7280;
+
+    /* Mapeo de Colores Funcionales para la aplicación */
+    --primary-color: var(--color-teal);
+    /* #2E5E55 - Principal para acciones */
+    --secondary-color: var(--color-text-dark);
+    /* #1f2937 - Principal para textos y títulos */
+    --hover-color: var(--color-mint);
+    /* #5EC8AA - Color de acento y hover */
+    --primary-rgb: 46, 94, 85;
+    /* RGB de --color-teal (#2E5E55) para sombras */
+}
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f7f9;
+    background-color: var(--color-bg-section-light);
+    /* Usando el color de fondo claro */
 }
 
 .admin-main-content {
     margin: 40px auto;
     padding: 20px;
-    background: white;
+    background: var(--color-bg-light);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -40,7 +65,7 @@ body {
 }
 
 .modal-content {
-    background-color: #fefefe;
+    background-color: var(--color-bg-light);
     margin: 5% auto;
     padding: 25px;
     border-radius: 10px;
@@ -70,18 +95,22 @@ body {
 .loading-indicator {
     text-align: center;
     padding: 20px;
+    color: var(--secondary-color);
+    /* Aplicado color oscuro de texto */
 }
 
 /* --- ESTILOS DEL MODAL DE CONFIGURACIÓN DE COLUMNAS --- */
 
 .config-header .config-title {
-    color: #333;
+    color: var(--secondary-color);
+    /* Aplicado color oscuro de texto */
     margin-bottom: 5px;
     font-size: 1.8rem;
 }
 
 .config-header .config-instruction {
-    color: #666;
+    color: var(--color-text-mid);
+    /* Aplicado color medio de texto */
     font-size: 1em;
     margin-bottom: 20px;
 }
@@ -97,7 +126,8 @@ body {
 }
 
 .config-section-title {
-    color: #28a745;
+    color: var(--primary-color);
+    /* Aplicado color principal (Teal) */
     font-size: 1.25em;
     padding-bottom: 8px;
     border-bottom: 2px solid #ddd;
@@ -113,7 +143,8 @@ body {
 .control-label {
     display: block;
     font-weight: bold;
-    color: #555;
+    color: var(--color-text-mid);
+    /* Aplicado color medio de texto */
     margin-bottom: 5px;
     font-size: 0.95em;
 }
@@ -123,7 +154,7 @@ body {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    background-color: #fff;
+    background-color: var(--color-bg-light);
     font-size: 1em;
 }
 
@@ -134,14 +165,16 @@ body {
 
 .input-group-text {
     padding: 10px 12px;
-    background-color: #e9ecef;
+    background-color: var(--color-bg-section-light);
     border: 1px solid #ced4da;
     border-radius: 4px 0 0 4px;
-    color: #28a745;
+    color: var(--primary-color);
+    /* Aplicado color principal (Teal) */
     font-size: 1.2em;
 }
 
 .role-info-box {
+    /* Manteniendo la combinación de verde claro/oscuro para un box de información/éxito */
     background-color: #e8f5e9;
     padding: 15px;
     border-radius: 5px;
@@ -163,8 +196,9 @@ body {
 }
 
 .select-all-link {
+    color: var(--hover-color);
+    /* Aplicado color de acento (Mint) */
     font-size: 0.9em;
-    color: #007bff;
     text-decoration: none;
     font-weight: 500;
 }
@@ -183,7 +217,8 @@ body {
 }
 
 .column-label {
-    color: #333;
+    color: var(--secondary-color);
+    /* Aplicado color oscuro de texto */
     font-weight: 500;
     font-size: 1em;
 }
@@ -225,7 +260,8 @@ body {
 }
 
 input:checked+.slider {
-    background-color: #28a745;
+    background-color: var(--primary-color);
+    /* Aplicado color principal (Teal) */
 }
 
 input:checked+.slider:before {
@@ -267,14 +303,17 @@ input:checked+.slider:before {
 }
 
 .btn-save-changes {
-    background: #28a745;
+    background: var(--primary-color);
+    /* Aplicado color principal (Teal) */
     color: white;
-    border: 1px solid #28a745;
+    border: 1px solid var(--primary-color);
     margin-left: 10px;
 }
 
 .btn-save-changes:hover:not(:disabled) {
-    background-color: #218838;
+    background-color: var(--hover-color);
+    /* Aplicado color de acento (Mint) */
+    border-color: var(--hover-color);
 }
 
 .btn-save-changes:disabled {
@@ -319,7 +358,8 @@ input:checked+.slider:before {
 }
 
 .btn-clear-search:hover {
-    color: #333;
+    color: var(--secondary-color);
+    /* Aplicado color oscuro de texto */
 }
 
 /* Lista de resultados (Dropdown) */
@@ -329,7 +369,7 @@ input:checked+.slider:before {
     margin: 0;
     position: absolute;
     width: 100%;
-    background: #fff;
+    background: var(--color-bg-light);
     border: 1px solid #ddd;
     border-top: none;
     z-index: 100;
@@ -356,12 +396,13 @@ input:checked+.slider:before {
 }
 
 .user-result-item:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-bg-section-light);
 }
 
 .ci-badge {
     display: inline-block;
-    background-color: #007bff;
+    background-color: var(--hover-color);
+    /* Aplicado color de acento (Mint) */
     color: white;
     padding: 2px 6px;
     border-radius: 3px;
@@ -374,7 +415,7 @@ input:checked+.slider:before {
 .loading-result,
 .no-result {
     padding: 8px 12px;
-    color: #6c757d;
+    color: var(--color-text-mid);
     font-style: italic;
     text-align: center;
 }
@@ -392,7 +433,7 @@ input:checked+.slider:before {
 
 .table-tile,
 .table-card {
-    background-color: #fff;
+    background-color: var(--color-bg-light);
     border: 1px solid #e0e0e0;
     border-radius: 10px;
     padding: 20px;
@@ -428,60 +469,74 @@ input:checked+.slider:before {
     justify-content: center;
     align-items: center;
     margin-bottom: 15px;
-    background-color: #6c757d;
+    /* Color por defecto */
+    background-color: var(--color-nav-text);
 }
 
 /* Aplicando el color de fondo distintivo para cada tarjeta usando nth-child */
+/* Mantenemos estos colores distintivos para diferenciar las tarjetas */
 .table-card:nth-child(1) .card-icon {
-    background-color: #28a745;
+    background-color: var(--primary-color);
+    /* Teal */
 }
 
 .table-card:nth-child(2) .card-icon {
     background-color: #007bff;
+    /* Azul */
 }
 
 .table-card:nth-child(3) .card-icon {
     background-color: #ffc107;
+    /* Amarillo */
 }
 
 .table-card:nth-child(4) .card-icon {
     background-color: #6f42c1;
+    /* Púrpura */
 }
 
 .table-card:nth-child(5) .card-icon {
     background-color: #dc3545;
+    /* Rojo */
 }
 
 .table-card:nth-child(6) .card-icon {
     background-color: #17a2b8;
+    /* Cyan */
 }
 
 .table-card:nth-child(7) .card-icon {
     background-color: #fd7e14;
+    /* Naranja */
 }
 
 .table-card:nth-child(8) .card-icon {
-    background-color: #20c997;
+    background-color: var(--hover-color);
+    /* Mint */
 }
 
 .table-card:nth-child(9) .card-icon {
     background-color: #e83e8c;
+    /* Rosa */
 }
 
 .table-card:nth-child(10) .card-icon {
     background-color: #343a40;
+    /* Gris oscuro */
 }
 
 .table-card .card-title {
     font-size: 1.3em;
     font-weight: 600;
     margin-bottom: 5px;
-    color: #333;
+    color: var(--secondary-color);
+    /* Aplicado color oscuro de texto */
     margin-top: 0;
 }
 
 .table-card .card-description {
-    color: #666;
+    color: var(--color-text-mid);
+    /* Aplicado color medio de texto */
     font-size: 0.9em;
     flex-grow: 1;
     margin-bottom: 20px;
@@ -502,8 +557,8 @@ input:checked+.slider:before {
 
 /* Botón principal: Configurar Columnas */
 .btn-manage-columns {
-    background: #4CAF50;
-    /* Verde fuerte */
+    background: var(--primary-color);
+    /* Aplicado color principal (Teal) */
     color: white;
     border: none;
     padding: 12px 15px;
@@ -516,13 +571,14 @@ input:checked+.slider:before {
 }
 
 .btn-manage-columns:hover {
-    background: #388e3c;
+    background: var(--hover-color);
+    /* Aplicado color de acento (Mint) */
 }
 
 /* Segundo botón: Gestionar Datos */
 .btn-manage-data {
-    background: white;
-    color: #555;
+    background: var(--color-bg-light);
+    color: var(--color-text-mid);
     /* Texto gris */
     border: 1px solid #ccc;
     /* Borde gris claro */
@@ -536,9 +592,9 @@ input:checked+.slider:before {
 }
 
 .btn-manage-data:hover {
-    background: #f5f5f5;
+    background: var(--color-bg-section-light);
     border-color: #aaa;
-    color: #333;
+    color: var(--secondary-color);
 }
 
 /* Iconos dentro de los botones */
@@ -553,7 +609,7 @@ input:checked+.slider:before {
 .add-new-card {
     border: 2px dashed #ccc;
     text-align: center;
-    background-color: #f8f8f8;
+    background-color: var(--color-bg-section-light);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -562,8 +618,9 @@ input:checked+.slider:before {
 
 .add-new-card .card-icon {
     background-color: transparent !important;
-    border: 2px solid #ccc;
-    color: #ccc !important;
+    border: 2px solid var(--color-text-mid);
+    /* Aplicado color medio de texto */
+    color: var(--color-text-mid) !important;
     font-size: 36px;
     width: 60px;
     height: 60px;
@@ -573,7 +630,7 @@ input:checked+.slider:before {
 .add-new-card .btn-add-table {
     background: none;
     border: none;
-    color: #6c757d;
+    color: var(--color-text-mid);
     font-size: 1.1em;
     padding: 15px;
     cursor: pointer;

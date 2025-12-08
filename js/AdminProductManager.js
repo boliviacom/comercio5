@@ -76,7 +76,7 @@ export class AdminProductManager {
         }
 
         if (!this.categoryService) {
-            
+
             return {};
         }
 
@@ -92,7 +92,7 @@ export class AdminProductManager {
             return map;
 
         } catch (e) {
-            
+
             return {};
         }
     }
@@ -102,7 +102,7 @@ export class AdminProductManager {
         const term = this.currentSearchTerm.toLowerCase().trim();
         const categoryId = this.currentCategoryId;
 
-        
+
 
         let filteredData = data;
 
@@ -120,12 +120,12 @@ export class AdminProductManager {
             const filterId = String(categoryId);
 
             filteredData = filteredData.filter(row => {
-                
-                
-                
-                const directId = String(row.id_categoria ?? ''); 
 
-                
+
+
+                const directId = String(row.id_categoria ?? '');
+
+
                 const nestedId = String(row.c?.id ?? '');
 
                 const matches = directId === filterId || nestedId === filterId;
@@ -134,7 +134,7 @@ export class AdminProductManager {
             });
         }
 
-        
+
 
         return filteredData;
     }
@@ -256,7 +256,7 @@ export class AdminProductManager {
                 </button>
             </div>` : '';
 
-        
+
         const createAndBulkButtons = TABLES_ALLOWING_CREATE.includes(tableName) ?
             `<div class="action-buttons-wrapper">
                 <button id="add-new-record-btn" class="btn-secondary-action" title="Añadir Nuevo ${linkText}">
@@ -320,10 +320,10 @@ export class AdminProductManager {
             this.fullData = data;
 
             if (this.fullData.length > 0) {
-                
+
 
                 if (this.fullData[0].id_categoria === undefined && this.fullData[0].c?.id === undefined) {
-                    
+
                 }
             }
 
@@ -332,7 +332,7 @@ export class AdminProductManager {
             this.renderCurrentPage();
 
         } catch (e) {
-            
+
             tableContentWrapper.innerHTML = `<p class="error-message">Error al cargar la tabla ${linkText}: ${e.message}</p>`;
         }
     }
@@ -353,7 +353,7 @@ export class AdminProductManager {
                 this.showForm(tableName, 'create');
             });
         }
-        
+
         const bulkUploadButton = document.getElementById('bulk-upload-btn-trigger');
         if (bulkUploadButton) {
             bulkUploadButton.addEventListener('click', () => {
@@ -386,7 +386,7 @@ export class AdminProductManager {
         const isTableDrawn = tableWrapper && tableWrapper.querySelector('.data-table');
 
         if (!isTableDrawn || dataSlice.length === 0 && (this.currentSearchTerm || this.currentCategoryId)) {
-            
+
             this.renderTable(tableName, linkText, dataSlice, true, config.headers, totalRecords, totalPages);
             this.enableCrudListeners(tableName);
         } else {
@@ -415,23 +415,23 @@ export class AdminProductManager {
         `;
     }
 
-    
+
     _getFileNameFromUrl(url) {
         if (!url) return 'Sin Imagen';
         try {
-            
+
             const match = url.match(/\/([^/?#]+)(?:\?.*)?$/);
             if (match && match[1]) {
-                const cleanName = decodeURIComponent(match[1]).split('?')[0]; 
-                
-                
+                const cleanName = decodeURIComponent(match[1]).split('?')[0];
+
+
                 return cleanName.length > 30 ? cleanName.substring(0, 30) + '...' : cleanName;
             }
-            
+
             return url.substring(0, 30) + '...';
 
         } catch (e) {
-            
+
             return url.substring(0, 30) + '... (URL inválida)';
         }
     }
@@ -450,8 +450,8 @@ export class AdminProductManager {
         const habilitarWhatsApp = row.habilitar_whatsapp === true;
         const habilitarFormulario = row.habilitar_formulario === true;
 
-        
-        const imageInfo = this._getFileNameFromUrl(row.imagen_url); 
+
+        const imageInfo = this._getFileNameFromUrl(row.imagen_url);
 
         let rowCells = `
             <td class="product-cell">
@@ -461,7 +461,7 @@ export class AdminProductManager {
                     </div>
                     <div class="product-details">
                         <span class="product-name">${(row.nombre ?? '').length > 20 ? (row.nombre ?? '').substring(0, 20) + '...' : row.nombre ?? ''}</span>
-                        <span class="product-file-name" title="Nombre del archivo: ${imageInfo}">${imageInfo}</span>
+                        
                         <span class="product-description">${(row.descripcion ?? '').substring(0, 50)}...</span>
                     </div>
                 </div>
@@ -583,7 +583,7 @@ export class AdminProductManager {
             });
 
         } catch (e) {
-            
+
             return `
                 <div class="form-group filter-select-error">
                     <label>Categoría:</label>
@@ -627,7 +627,7 @@ export class AdminProductManager {
         if (categorySelect) {
             categorySelect.onchange = () => {
                 this.currentCategoryId = categorySelect.value;
-                
+
                 this.currentPage = 1;
                 this.renderCurrentPage();
             };
@@ -728,7 +728,7 @@ export class AdminProductManager {
             this.renderCurrentPage();
 
         } catch (error) {
-            
+
             alert(`❌ Error al actualizar globalmente: ${error.message}. Se revertirá el interruptor.`);
             inputElement.checked = !newValue;
         } finally {
@@ -770,7 +770,7 @@ export class AdminProductManager {
             this.renderCurrentPage();
 
         } catch (error) {
-            
+
             alert(`Error al actualizar el campo: ${error.message}. Se revertirá el interruptor.`);
             inputElement.checked = originalValue;
         } finally {
@@ -814,7 +814,7 @@ export class AdminProductManager {
                 try {
                     categoryOptions = await categoryService.fetchData();
                 } catch (e) {
-                    
+
                 }
             }
         }
@@ -911,7 +911,7 @@ export class AdminProductManager {
                 return `<input type="hidden" id="${field.name}" name="${field.name}" value="${currentValue}">`;
             }
 
-            
+
             let maxLengthAttr = '';
             if (field.name === 'nombre') {
                 maxLengthAttr = 'maxlength="20"';
@@ -1024,7 +1024,7 @@ export class AdminProductManager {
             alert('✅ Imagen eliminada con éxito. Para que el cambio sea definitivo, recuerde presionar "Guardar Cambios".');
 
         } catch (error) {
-            
+
             alert(`❌ Error al eliminar la imagen: ${error.message}`);
         } finally {
             if (deleteButton) {
@@ -1035,9 +1035,9 @@ export class AdminProductManager {
         }
     }
 
-    
-    
-    
+
+
+
     showBulkUploadForm() {
         this.modalTitle.textContent = 'Carga Masiva de Productos (CSV/Excel)';
         this.modalBody.innerHTML = `
@@ -1082,10 +1082,10 @@ export class AdminProductManager {
         });
     }
 
-    
-    
+
+
     async handleBulkUploadSubmit(file) {
-        
+
 
         const submitButton = document.getElementById('bulk-upload-btn');
         submitButton.disabled = true;
@@ -1111,8 +1111,8 @@ export class AdminProductManager {
                     dynamicTyping: true,
                     skipEmptyLines: true,
                     complete: (results) => {
-                        
-                        
+
+
                         const validData = results.data.filter(row => row && row.nombre && String(row.nombre).trim() !== '');
                         resolve(validData);
                     },
@@ -1125,13 +1125,13 @@ export class AdminProductManager {
             }
 
         } catch (parseError) {
-            
+
             alert(`❌ Error al leer el archivo: ${parseError.message}`);
             submitButton.disabled = false;
             submitButton.innerHTML = '<i class="fas fa-file-import"></i> Procesar Archivo';
             return;
         }
-        
+
         const categoryMap = await this._getCategoryNameMap();
         if (Object.keys(categoryMap).length === 0) {
             alert('❌ No se pudo cargar el mapa de categorías. Verifique la conexión.');
@@ -1139,7 +1139,7 @@ export class AdminProductManager {
             submitButton.innerHTML = '<i class="fas fas fa-file-import"></i> Procesar Archivo';
             return;
         }
-        
+
         let productsToInsert = [];
         let failedRecords = [];
 
@@ -1149,11 +1149,11 @@ export class AdminProductManager {
             for (const record of parsedData) {
                 let categoryId = null;
 
-                
+
                 if (record.id_categoria && parseInt(record.id_categoria) > 0) {
                     categoryId = parseInt(record.id_categoria);
-                } 
-                
+                }
+
                 else if (record.nombre_categoria) {
                     const categoryName = this._normalizeString(record.nombre_categoria);
                     categoryId = categoryMap[categoryName];
@@ -1163,10 +1163,10 @@ export class AdminProductManager {
                     const productDataToSave = {
                         ...record,
                         id_categoria: categoryId,
-                        
+
                         precio: parseFloat(record.precio) || 0,
                         stock: parseInt(record.stock) || 0,
-                        
+
                         visible: record.visible !== undefined ? (String(record.visible).toLowerCase() === 'true' || record.visible === 1) : true,
                         mostrar_precio: record.mostrar_precio !== undefined ? (String(record.mostrar_precio).toLowerCase() === 'true' || record.mostrar_precio === 1) : true,
                         habilitar_whatsapp: record.habilitar_whatsapp !== undefined ? (String(record.habilitar_whatsapp).toLowerCase() === 'true' || record.habilitar_whatsapp === 1) : false,
@@ -1189,7 +1189,7 @@ export class AdminProductManager {
             if (productsToInsert.length > 0) {
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Insertando datos masivamente...';
 
-                
+
                 await productService.bulkCreate(productsToInsert);
 
                 successfulUploads = productsToInsert.length;
@@ -1199,23 +1199,23 @@ export class AdminProductManager {
             alert(`✅ Proceso finalizado. Subidos con éxito: ${successfulUploads}. Fallidos: ${failedRecords.length}.`);
 
             if (failedRecords.length > 0) {
-                 
-                 alert(`⚠️ Hubo registros fallidos. Revise la consola (F12) para ver los detalles de los ${failedRecords.length} productos que no se pudieron cargar.`);
+
+                alert(`⚠️ Hubo registros fallidos. Revise la consola (F12) para ver los detalles de los ${failedRecords.length} productos que no se pudieron cargar.`);
             }
 
             await this.loadTable();
 
         } catch (error) {
-            
+
             alert(`❌ Error crítico en el procesamiento: ${error.message}`);
         } finally {
             submitButton.disabled = false;
             submitButton.innerHTML = '<i class="fas fa-file-import"></i> Procesar Archivo';
         }
     }
-    
-    
-    
+
+
+
 
 
     async handleFormSubmit(tableName, action, id = null) {
@@ -1271,7 +1271,7 @@ export class AdminProductManager {
             await this.loadTable();
 
         } catch (error) {
-            
+
             alert(`❌ Error al guardar el registro: ${error.message}`);
         } finally {
             submitButton.disabled = false;
@@ -1293,7 +1293,7 @@ export class AdminProductManager {
                 alert(`Registro ${!isVisible ? 'reactivado' : 'eliminado/inactivado'} con éxito.`);
                 await this.loadTable();
             } catch (error) {
-                
+
                 alert("Error al actualizar la visibilidad del registro.");
             }
         }

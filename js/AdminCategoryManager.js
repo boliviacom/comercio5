@@ -9,7 +9,7 @@ const TABLES_ALLOWING_CREATE = ['categoria'];
 
 export class AdminCategoryManager {
 
-    constructor(displayElementId, modalId = 'crud-modal') {
+    constructor(displayElementId, modalId = 'crud-modal', backToDashboardCallback = null) { // <-- MODIFICACIÓN: Añadir callback
         this.displayElement = document.getElementById(displayElementId);
         this.modal = document.getElementById(modalId);
         this.modalTitle = document.getElementById('modal-title');
@@ -26,6 +26,7 @@ export class AdminCategoryManager {
         this.loadingHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</div>';
         
         this.searchTimeout = null; 
+        this.backToDashboardCallback = backToDashboardCallback; // <-- MODIFICACIÓN: Guardar callback
 
         this.setupModalListeners();
     }
@@ -65,8 +66,17 @@ export class AdminCategoryManager {
         const tableName = this.currentTable;
         const linkText = this.currentLinkText;
         
+        // <-- MODIFICACIÓN: HTML del botón Volver
+        const backButtonHTML = this.backToDashboardCallback ?
+            `<div class="back-button-row-wrapper">
+                <button id="back-to-dashboard-btn" class="btn-secondary-action" title="Volver al Panel Principal de Administración">
+                    <i class="fas fa-arrow-left"></i> Volver al Panel
+                </button>
+            </div>` : '';
+        // FIN MODIFICACIÓN
+
         this.displayElement.innerHTML = `
-            <div class="table-actions">
+            ${backButtonHTML} <div class="table-actions">
                 <h2>Gestión de la Tabla: ${linkText}</h2>
                 <button class="btn-primary btn-create" data-table="${tableName}"><i class="fas fa-plus"></i> Crear Nuevo</button>
                 <span class="record-count">Cargando...</span>
@@ -78,6 +88,7 @@ export class AdminCategoryManager {
         `;
 
         this.setupSearchAndFilterListeners();
+        this.setupBackButtonListener(); // <-- MODIFICACIÓN: Llamada a la nueva función
         
         const service = SERVICE_MAP[tableName];
         const config = REPORT_CONFIG[tableName];
@@ -101,6 +112,17 @@ export class AdminCategoryManager {
             tableContentWrapper.innerHTML = `<p class="error-message">Error al cargar la tabla ${linkText}: ${e.message}</p>`;
         }
     }
+
+    // <-- MODIFICACIÓN: Nuevo método para el botón Volver
+    setupBackButtonListener() {
+        const backButton = document.getElementById('back-to-dashboard-btn');
+        if (backButton && this.backToDashboardCallback) {
+            backButton.addEventListener('click', () => {
+                this.backToDashboardCallback();
+            });
+        }
+    }
+    // FIN MODIFICACIÓN
 
     _updateTableBodyOnly(dataSlice, isCrudTable, indexOffset) {
         const tableBody = this.displayElement.querySelector('.data-table tbody');
@@ -236,7 +258,6 @@ export class AdminCategoryManager {
                 <div class="search-box full-width">
                     <div class="input-group">
                         <input type="text" id="table-search-input" placeholder="${searchInstructions}" class="input-text-search" value="${this.currentSearchTerm}">
-                        <i class="fas fa-search search-icon"></i>
                     </div>
                 </div>
             </div>
@@ -316,10 +337,10 @@ export class AdminCategoryManager {
             <form id="crud-form">
                 ${formFieldsHTML}
                 <div class="form-footer">
+                    <button type="button" class="btn-cancel-modal" id="form-cancel-btn">Cancelar</button>
                     <button type="submit" class="btn-primary-modal">
                         <i class="fas fa-save"></i> ${action === 'create' ? 'Crear' : 'Guardar Cambios'}
                     </button>
-                    <button type="button" class="btn-cancel-modal" id="form-cancel-btn">Cancelar</button>
                 </div>
             </form>
         `;

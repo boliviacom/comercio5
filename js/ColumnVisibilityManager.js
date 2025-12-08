@@ -1,5 +1,3 @@
-// js/ColumnVisibilityManager.js
-
 import { REPORT_CONFIG } from './config/tableConfigs.js';
 import { ColConfigService } from './services/ColConfigService.js';
 import { RolesService } from './services/RolesService.js';
@@ -42,8 +40,14 @@ export class ColumnVisibilityManager {
 
     async _handleUserSearch(searchTerm) {
         const roleSelect = document.getElementById('role-select');
-        const roleId = roleSelect.value;
         const resultsList = document.getElementById('user-search-results');
+
+        if (!roleSelect || !resultsList) {
+            console.error('Elementos DOM necesarios para la búsqueda de usuario no encontrados.');
+            return;
+        }
+
+        const roleId = roleSelect.value;
 
         if (!searchTerm || searchTerm.length < 1) {
             resultsList.innerHTML = '';
@@ -219,6 +223,10 @@ export class ColumnVisibilityManager {
         const clearUserBtn = document.getElementById('clear-user-btn');
         const saveButton = document.getElementById('save-config-btn');
 
+        if (!roleSelect || !userSearchInput || !selectedRoleNameSpan || !saveButton) {
+            throw new Error('Elementos DOM críticos no encontrados para la configuración de columnas.');
+        }
+
         const roleId = roleSelect.value;
         const effectiveUserId = this.currentUserId;
 
@@ -253,9 +261,36 @@ export class ColumnVisibilityManager {
         this.currentRoleId = effectiveUserId ? null : roleId;
         this.currentUserId = effectiveUserId;
         this.updateSwitches(config.columnas_visibles);
-    };
+    }
 
     async initializePanelListeners(tableName) {
+        this.loadAndRefreshConfig = this.loadAndRefreshConfig.bind(this);
+
+        const MAX_RETRIES = 50;
+        let retries = 0;
+        let elementsReady = false;
+        let initialError = null;
+
+        while (!elementsReady && retries < MAX_RETRIES) {
+            try {
+                await this.loadAndRefreshConfig();
+                elementsReady = true;
+            } catch (error) {
+                initialError = error;
+                if (error.message.includes('Elementos DOM críticos')) {
+                    retries++;
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                } else {
+                    break;
+                }
+            }
+        }
+
+        if (!elementsReady) {
+            console.error(`ERROR CRÍTICO: El panel de configuración de columnas no cargó sus elementos DOM. Retries: ${retries}`, initialError);
+            throw new Error('No se pudo inicializar el panel. Tiempo de espera de DOM agotado.');
+        }
+
         const roleSelect = document.getElementById('role-select');
         const userSearchInput = document.getElementById('user-search-input');
         const clearUserBtn = document.getElementById('clear-user-btn');
@@ -264,8 +299,6 @@ export class ColumnVisibilityManager {
         const saveButton = document.getElementById('save-config-btn');
         const cancelButton = document.getElementById('cancel-config-btn');
         const modal = document.getElementById('crud-modal');
-
-        this.loadAndRefreshConfig = this.loadAndRefreshConfig.bind(this);
 
         userSearchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value;
@@ -293,8 +326,6 @@ export class ColumnVisibilityManager {
                 this.loadAndRefreshConfig();
             });
         }
-
-        this.loadAndRefreshConfig();
 
         if (selectAllLink && columnSwitchesList) {
             selectAllLink.addEventListener('click', (e) => {

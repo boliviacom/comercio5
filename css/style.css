@@ -1,3 +1,28 @@
+:root {
+    /* Colores Descriptivos proporcionados por el usuario */
+    --color-teal: #2E5E55;
+    --color-mint: #5EC8AA;
+    --color-geek-text: #222;
+    --color-tagline: #2E5E55;
+    --color-nav-text: #666;
+    --header-height: 80px;
+    --color-bg-light: #ffffff;
+    --color-bg-section-light: #f9fafb;
+    --color-text-dark: #1f2937;
+    --color-text-mid: #6b7280;
+
+    /* Mapeo de Colores Funcionales para la aplicación */
+    --primary-color: var(--color-teal);
+    /* #2E5E55 - Principal para acciones */
+    --secondary-color: var(--color-text-dark);
+    /* #1f2937 - Principal para textos y títulos */
+    --hover-color: var(--color-mint);
+    /* #5EC8AA - Color de acento y hover */
+    --primary-rgb: 46, 94, 85;
+    /* RGB de --color-teal (#2E5E55) para sombras */
+}
+
+
 .logo-text {
     font-size: 1.12em;
     font-weight: 800;
@@ -91,6 +116,7 @@
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center;
 }
 
 .data-table th:nth-child(7),
@@ -537,11 +563,13 @@
     transition: .4s;
 }
 
-input:checked.slider {
+input:checked+.slider {
+    /* Corregido: usa el combinador de hermano adyacente '+' para el slider */
     background-color: var(--primary-color);
 }
 
-input:checked.slider:before {
+input:checked+.slider:before {
+    /* Corregido: usa el combinador de hermano adyacente '+' para el slider */
     transform: translateX(21px);
 }
 
@@ -732,4 +760,111 @@ input:checked.slider:before {
     /* Ajusta este valor según el ancho deseado para 20 caracteres */
     display: inline-block;
     /* Necesario para que 'max-width' funcione en un 'span' */
+}
+
+/* ========================================= */
+/* ESTILOS DEL MODAL Y FORMULARIO DE USUARIO */
+/* ========================================= */
+
+/* Contenedor principal para campos en cuadrícula */
+.form-grid {
+    display: grid;
+    gap: 15px;
+    /* Espacio entre las columnas y filas de la cuadrícula */
+    margin-bottom: 20px;
+}
+
+/* 2 columnas */
+.grid-col-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* 3 columnas */
+.grid-col-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* Títulos de sección dentro del formulario */
+#crud-form h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #4a5568;
+    /* Color de texto suave */
+    border-bottom: 2px solid #edf2f7;
+    /* Línea separadora */
+    padding-bottom: 5px;
+    margin-top: 25px;
+    /* Espacio superior para separar secciones */
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+#crud-form h3 i {
+    margin-right: 8px;
+    color: #4c51bf;
+    /* Color de ícono (ej. un tono morado/azul) */
+}
+
+/* Utilidad para margen superior */
+.mt-4 {
+    margin-top: 25px !important;
+}
+
+/* Estilos de grupo de formulario */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: #2d3748;
+    font-size: 0.9em;
+}
+
+/* Estilos básicos para inputs y selects (ajusta si ya los tienes) */
+.input-text,
+.input-select {
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+    /* Crucial para el padding */
+}
+
+.input-text:focus,
+.input-select:focus {
+    border-color: #4c51bf;
+    outline: none;
+    box-shadow: 0 0 0 1px #4c51bf;
+}
+
+/* Estilos para el pie del formulario (botones) */
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    /* Botones a la derecha */
+    gap: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 30px;
+}
+
+/* Adaptación para pantallas pequeñas */
+@media (max-width: 768px) {
+
+    .grid-col-2,
+    .grid-col-3 {
+        grid-template-columns: 1fr;
+        /* Una sola columna en móviles */
+    }
+
+    .form-footer {
+        flex-direction: column-reverse;
+        /* Apila los botones en móviles */
+    }
 }
