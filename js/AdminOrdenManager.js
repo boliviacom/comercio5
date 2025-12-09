@@ -38,6 +38,12 @@ export class AdminOrdenManager {
         this.currentSearchTerm = '';
         this.searchTimeout = null;
         this.ciValidationTimeout = null;
+        
+        // Propiedades para gestionar el formulario por pasos
+        this.currentStep = 1;
+        this.maxSteps = 3;
+        this.stepData = {}; 
+        this.isFormSubmitting = false;
 
         this.loadingHTML = '<div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</div>';
 
@@ -62,6 +68,8 @@ export class AdminOrdenManager {
         });
     }
 
+    // --- Métodos de Listado y Tabla (Omitidos por brevedad) ---
+
     setupSearchAndFilterListeners() {
         const searchContainer = document.getElementById(SEARCH_FILTER_CONTAINER_ID);
         if (!searchContainer) return;
@@ -71,9 +79,7 @@ export class AdminOrdenManager {
         if (searchInput) {
             searchInput.oninput = () => {
                 const newTerm = searchInput.value;
-
                 clearTimeout(this.searchTimeout);
-
                 this.searchTimeout = setTimeout(() => {
                     this.currentSearchTerm = newTerm;
                     this.currentPage = 1;
@@ -102,7 +108,6 @@ export class AdminOrdenManager {
         this.displayElement.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', (e) => {
                 const id = e.currentTarget.dataset.id;
-
                 if (confirm(`¿Está seguro de eliminar esta orden?`)) {
                     this.toggleVisibility(id, false);
                 }
@@ -192,15 +197,15 @@ export class AdminOrdenManager {
     _updateTableBodyOnly(dataSlice, isCrudTable, indexOffset) {
         const tableBody = this.displayElement.querySelector('.data-table tbody');
         const paginationControls = this.displayElement.querySelector('.pagination-controls');
-        const recordCountSpan = this.displayElement.querySelector('.record-count-wrapper .record-count');
 
         const tableName = this.currentTable;
         const filteredData = this.filterData();
         const totalRecords = filteredData.length;
         const totalPages = Math.ceil(totalRecords / this.itemsPerPage);
 
-        if (recordCountSpan) {
-            recordCountSpan.textContent = `Total: ${totalRecords} registros visibles (${dataSlice.length} en esta página)`;
+        const countSpan = this.displayElement.querySelector('.header-with-nav .table-actions .record-count');
+        if (countSpan) {
+            countSpan.textContent = `Total: ${totalRecords} registros visibles (${dataSlice.length} en esta página)`;
         }
 
         if (tableBody) {
@@ -221,14 +226,13 @@ export class AdminOrdenManager {
         const linkText = this.currentLinkText;
 
         this.displayElement.innerHTML = `
-            <div class="header-controls-wrapper">
-                <h2>Gestión de la Tabla: ${linkText}</h2>
-                <div class="action-buttons">
+            <div class="header-with-nav">
+                <button class="btn-secondary-action" id="back-to-panel-btn"><i class="fas fa-arrow-left"></i> Volver al Panel</button>
+                <div class="table-actions">
+                    <h2>Gestión de la Tabla: ${linkText}</h2>
                     <button class="btn-primary btn-create" data-table="${tableName}"><i class="fas fa-plus"></i> Crear Nuevo</button>
-                </div>
-                <span class="record-count-wrapper">
                     <span class="record-count">Cargando...</span>
-                </span>
+                </div>
             </div>
             
             ${this._renderSearchAndFilterBox(tableName)}
@@ -241,6 +245,10 @@ export class AdminOrdenManager {
         const service = SERVICE_MAP[tableName];
         const config = REPORT_CONFIG[tableName];
         const tableContentWrapper = this.displayElement.querySelector('#table-content-wrapper');
+
+        document.getElementById('back-to-panel-btn')?.addEventListener('click', () => {
+            console.log('Volver al panel principal...');
+        });
 
         if (!config || !service) {
             tableContentWrapper.innerHTML = `<p class="error-message">Configuración o Servicio no encontrado para la tabla: ${tableName}</p>`;
@@ -306,7 +314,7 @@ export class AdminOrdenManager {
         const recordText = 'órdenes visibles';
         const tableContentWrapper = this.displayElement.querySelector('#table-content-wrapper');
 
-        const recordCountSpan = this.displayElement.querySelector('.record-count-wrapper .record-count');
+        const recordCountSpan = this.displayElement.querySelector('.header-with-nav .table-actions .record-count');
         if (recordCountSpan) {
             recordCountSpan.textContent = `Total: ${totalRecords} ${recordText} (${dataSlice.length} en esta página)`;
         }
@@ -346,7 +354,6 @@ export class AdminOrdenManager {
                 <div class="search-box full-width">
                     <div class="input-group">
                         <input type="text" id="table-search-input" placeholder="${searchInstructions}" class="input-text-search" value="${this.currentSearchTerm}">
-                        <i class="fas fa-search search-icon"></i>
                     </div>
                 </div>
             </div>
@@ -399,6 +406,7 @@ export class AdminOrdenManager {
             'estado',
         ];
 
+
         let rowCells = finalFields.map(fieldName => {
             let cellValue = '';
 
@@ -432,14 +440,13 @@ export class AdminOrdenManager {
                         const ref = d.referencia_adicional ? `(Ref: ${d.referencia_adicional})` : '';
 
                         const zona = d.z?.nombre || 'Zona Desconocida';
-                        const localidad = d.l?.nombre || 'Localidad Desconocida';
-                        const municipio = d.l?.m?.nombre || 'Municipio Desconocido';
-                        const depto = d.l?.m?.dpt?.nombre || 'Departamento Desconocido';
+                        const localidad = d.z?.l?.nombre || 'Localidad Desconocida';
 
                         cellValue = `
                             ${calle}, ${numero} ${ref}<br>
                             <small class="text-muted">
                                 <strong>Zona</strong>: ${zona}<br>
+                                <strong>Localidad</strong>: ${localidad}
                             </small>
                         `;
                     } else {
@@ -455,7 +462,8 @@ export class AdminOrdenManager {
 
         return `
             <tr data-id="${rowId}" class="${rowClass}">
-                ${rowCells} ${isCrudTable ? `
+                ${rowCells} 
+                ${isCrudTable ? `
                     <td>
                         <button class="btn-action btn-edit" data-id="${rowId}" title="Editar"><i class="fas fa-edit"></i></button>
                         <button class="btn-action btn-delete" data-id="${rowId}" title="${deleteTitle}" ${deleteDisabled ? 'disabled' : ''}>
@@ -466,18 +474,10 @@ export class AdminOrdenManager {
             </tr>
         `;
     }
-
-    async _fetchAddressHierarchy(id_direccion) {
-        const service = DireccionService;
-        if (!service || !service.getFullHierarchyById) {
-            return {};
-        }
-        try {
-            return await service.getFullHierarchyById(id_direccion);
-        } catch (e) {
-            return {};
-        }
-    }
+    
+    // -------------------------------------------------------------------------
+    // --- Métodos de Formulario por Pasos (Modificados) -----------------------
+    // -------------------------------------------------------------------------
 
     async _loadSelectOptions(serviceName, dependencyValue = null, selectedValue = null) {
         const service = SERVICE_MAP[serviceName];
@@ -504,8 +504,8 @@ export class AdminOrdenManager {
         }
     }
 
-    _setupCascadeListeners(action) {
-        const form = document.getElementById('crud-form');
+    _setupCascadeListeners() {
+        const form = document.getElementById('step-form-body');
         const selects = form.querySelectorAll('select[data-dependency]');
 
         selects.forEach(dependentSelect => {
@@ -521,23 +521,21 @@ export class AdminOrdenManager {
                 const handler = async (e) => {
                     const parentValue = e.target.value;
                     const dependentId = dependentSelect.id;
-
-                    const valueToKeep = (action === 'edit' && dependentSelect.value) ? dependentSelect.value : null;
-
-
+                    const selectedValue = this.stepData[dependentId] || null;
+                    
                     dependentSelect.innerHTML = '<option value="">Cargando...</option>';
                     dependentSelect.classList.add('disabled-cascade');
                     dependentSelect.disabled = true;
 
                     if (parentValue) {
-                        const newOptions = await this._loadSelectOptions(optionsService, parentValue, valueToKeep);
+                        const newOptions = await this._loadSelectOptions(optionsService, parentValue, selectedValue);
 
                         const label = dependentSelect.previousElementSibling.textContent.replace(':', '');
                         dependentSelect.innerHTML = `<option value="">-- Seleccionar ${label} --</option>` + newOptions;
                         dependentSelect.classList.remove('disabled-cascade');
                         dependentSelect.disabled = false;
                     } else {
-                        const dependencyLabel = dependencySelect.previousElementSibling?.textContent.replace(':', '').replace(' (Propietario)', '').replace(' del Cliente', '').toUpperCase() || dependencyName.replace('_form', '').replace('id_', '').toUpperCase();
+                        const dependencyLabel = dependencySelect.previousElementSibling?.textContent.replace(':', '').replace(' del Cliente', '').toUpperCase() || dependencyName.replace('_form', '').replace('id_', '').toUpperCase();
 
                         dependentSelect.innerHTML = `<option value="">-- Seleccionar primero ${dependencyLabel} --</option>`;
                         dependentSelect.classList.add('disabled-cascade');
@@ -548,80 +546,46 @@ export class AdminOrdenManager {
                     if (nextDependent) {
                         setTimeout(() => nextDependent.dispatchEvent(new Event('change')), 0);
                     }
+                    
+                    // Asegurar que el valor del select recién cargado se guarde en stepData
+                    this.stepData[dependentId] = dependentSelect.value;
                 };
 
                 dependencySelect.removeEventListener('change', handler);
                 dependencySelect.addEventListener('change', handler);
             }
         });
-
-        if (action === 'edit') {
-            const form = document.getElementById('crud-form');
-            const cascadeSelects = [
+        
+        // **IMPORTANTE para el MODO EDICIÓN:**
+        if (this.currentStep === 2 && this.stepData.crud_action === 'edit') {
+            const selectsToTrigger = [
                 form.querySelector('#id_departamento_form'),
-            ].filter(select => select && select.value);
+                form.querySelector('#id_municipio_form'),
+                form.querySelector('#id_localidad_form'),
+            ];
 
-            cascadeSelects.forEach((select) => {
-                setTimeout(() => {
-                    select.dispatchEvent(new Event('change'));
-                }, 100);
+            selectsToTrigger.forEach((select) => {
+                if(select && select.value) {
+                    setTimeout(() => {
+                        select.dispatchEvent(new Event('change'));
+                    }, 10);
+                }
             });
         }
     }
 
-
-    async showForm(tableName, action, id = null) {
-        const configForm = CRUD_FIELDS_CONFIG[tableName];
-
-        if (!configForm || !SERVICE_MAP[tableName]) {
-            alert(`Error: Configuración o Servicio no encontrado para la tabla ${tableName}.`);
-            return;
+    _getStepConfig() {
+        // Mejorar la información del cliente para el paso 3
+        let clienteInfo = 'CI no validado';
+        if (this.stepData.cliente_nombre && this.stepData.ci_cliente) {
+            clienteInfo = `${this.stepData.cliente_nombre} (CI: ${this.stepData.ci_cliente})`;
+        } else if (this.stepData.ci_cliente) {
+             clienteInfo = `CI: ${this.stepData.ci_cliente}`;
         }
+        
+        const totalValue = this.stepData.total ? `Bs ${parseFloat(this.stepData.total).toFixed(2)}` : '0.00';
 
-        const titleText = action === 'create' ? 'Nueva Orden' : 'Editar Orden';
-
-        this.modalTitle.textContent = titleText;
-        this.modalBody.innerHTML = this.loadingHTML;
-        this.modal.classList.add('active');
-
-
-        let formData = {};
-        let initialCiValue = '';
-        let direccionData = null;
-        let addressHierarchy = {};
-
-        if (action === 'edit' && id) {
-            try {
-                formData = await SERVICE_MAP[tableName].getById(id);
-
-                initialCiValue = formData.ci_cliente || '';
-                direccionData = formData.direccion_data;
-                
-                if (formData.id_direccion) {
-                    addressHierarchy = formData.addressHierarchy || {}; 
-
-                    if (direccionData) {
-                        formData['calle_avenida'] = direccionData.calle_avenida;
-                        formData['numero_casa_edificio'] = direccionData.numero_casa_edificio;
-                        formData['referencia_adicional'] = direccionData.referencia_adicional;
-
-                        formData['id_departamento_form'] = addressHierarchy.id_departamento;
-                        formData['id_municipio_form'] = addressHierarchy.id_municipio;
-                        formData['id_localidad_form'] = addressHierarchy.id_localidad;
-                        formData['id_zona'] = addressHierarchy.id_zona;
-                    }
-                }
-
-            } catch (e) {
-                this.modalBody.innerHTML = `<p class="error-message">Error al cargar datos del registro. ${e.message}</p>`;
-                return;
-            }
-        }
-
-        let filteredConfigForm = configForm.filter(field =>
-            !['visible', 'observaciones'].includes(field.name)
-        );
-
+        // Campos de Dirección
         const directionFields = [
             { name: 'id_departamento_form', label: 'Departamento', type: 'select', required: true, options_service: 'DepartamentoService' },
             { name: 'id_municipio_form', label: 'Municipio', type: 'select', required: true, options_service: 'MunicipioService', dependency: 'id_departamento_form' },
@@ -630,46 +594,146 @@ export class AdminOrdenManager {
             { name: 'calle_avenida', label: 'Calle/Avenida', type: 'text', required: true, placeholder: 'Ej: Av. Brasil' },
             { name: 'numero_casa_edificio', label: 'Número Casa/Edificio', type: 'text', required: true, placeholder: 'Ej: 1234' },
             { name: 'referencia_adicional', label: 'Referencia Adicional', type: 'textarea', required: false, placeholder: 'Ej: Frente a la farmacia' },
+            { name: 'id_direccion', type: 'hidden' } // <-- Añadido aquí para ser recolectado
         ];
+        
+        // Campos de Orden (filtros para los que necesitamos)
+        const orderFields = CRUD_FIELDS_CONFIG['orden'].filter(f => 
+            ['estado', 'metodo_pago', 'fecha', 'total'].includes(f.name)
+        );
 
-        let finalFields = [];
-        for (const field of filteredConfigForm) {
-            if (field.name === 'id_direccion') {
-                finalFields.push(...directionFields);
-                finalFields.push({ name: 'id_direccion', type: 'hidden' });
-            } else {
-                finalFields.push(field);
-            }
+
+        return {
+            1: {
+                title: 'Información del Cliente',
+                heading: 'Datos del Cliente',
+                fields: [
+                    { name: 'ci_cliente', label: 'Cédula de Identidad (CI) del Cliente', type: 'text', required: true, placeholder: 'Ingrese la cédula de identidad', is_ci: true },
+                    { name: 'id_usuario', type: 'hidden' },
+                ],
+            },
+            2: {
+                title: 'Dirección de Entrega',
+                heading: 'Ubicación y Detalles',
+                fields: directionFields,
+            },
+            3: {
+                title: 'Detalles Finales',
+                heading: 'Resumen de Orden',
+                fields: [
+                    ...orderFields.filter(f => f.name !== 'total'), // No mostrar el campo total editable
+                    { name: 'order_total_display', label: 'Total de la Orden', type: 'display', value: totalValue, placeholder: '0.00' },
+                    { name: 'cliente_info_display', label: 'Cliente', type: 'display', value: clienteInfo, placeholder: 'CI no validado' },
+                    { name: 'total', type: 'hidden' } // <-- Añadir campo total oculto para el payload
+                ],
+            },
+        };
+    }
+
+    _renderStepHeader() {
+        const stepConfig = this._getStepConfig();
+        const stepTitle = stepConfig[this.currentStep].title;
+        const percent = Math.floor((this.currentStep / this.maxSteps) * 100);
+
+        return `
+            <div class="step-header">
+                <p>Paso ${this.currentStep} de ${this.maxSteps}: <strong>${stepTitle}</strong></p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${percent}%;"></div>
+                </div>
+            </div>
+            <div class="form-content-wrapper">
+                <h3>${stepConfig[this.currentStep].heading}</h3>
+                <form id="step-form-body">
+                    <div class="grid-col-2">
+        `;
+    }
+
+    _renderStepFooter(action) {
+        const isLastStep = this.currentStep === this.maxSteps;
+        const submitText = action === 'create' ? 'Finalizar y Crear Orden' : 'Guardar Cambios';
+
+        let footerHTML = `
+                    </div> </form> </div> <div class="form-footer step-footer">
+        `;
+
+        // Botón "Atrás"
+        if (this.currentStep > 1) {
+            footerHTML += `<button type="button" class="btn-secondary-modal" id="btn-prev-step">Atrás</button>`;
+        } else {
+            footerHTML += `<button type="button" class="btn-cancel-modal" id="form-cancel-btn">Cancelar</button>`;
         }
 
+        // Botón "Siguiente" o "Guardar"
+        const buttonText = isLastStep ? submitText : 'Siguiente';
+        
+        footerHTML += `<button type="button" class="btn-primary-modal" id="btn-next-step">
+            <i class="fas fa-spinner fa-spin" style="display:none;"></i> 
+            <span id="next-button-text">${buttonText}</span>
+        </button>`;
 
-        const fieldPromises = finalFields.map(async field => {
-            let currentValue = formData[field.name] ?? '';
+        footerHTML += `</div>`;
+        return footerHTML;
+    }
+    
+    // Función para manejar el estado de carga del botón Siguiente/Guardar
+    _toggleNextButtonLoading(isLoading, newText = null) {
+        const button = document.getElementById('btn-next-step');
+        if (!button) return;
+        
+        const spinner = button.querySelector('i.fa-spinner');
+        const textSpan = button.querySelector('#next-button-text');
+        
+        if (isLoading) {
+            button.disabled = true;
+            spinner.style.display = 'inline-block';
+            textSpan.style.display = 'none';
+        } else {
+            button.disabled = false;
+            spinner.style.display = 'none';
+            textSpan.style.display = 'inline-block';
+            if (newText) {
+                textSpan.textContent = newText;
+            }
+        }
+    }
+
+    async _renderStepContent(action) {
+        const stepConfig = this._getStepConfig();
+        const currentFields = stepConfig[this.currentStep].fields;
+        
+        let formHTML = '';
+
+        const fieldPromises = currentFields.map(async field => {
             let fieldConfig = { ...field };
+            // El valor viene de this.stepData, que se cargó en showForm o se actualizó en la navegación
+            let currentValue = this.stepData[fieldConfig.name] ?? ''; 
 
             const requiredAttr = fieldConfig.required ? 'required' : '';
             const stepAttr = fieldConfig.step ? `step="${fieldConfig.step}"` : '';
             const numberClass = fieldConfig.type === 'number' ? ' input-number' : '';
+            const placeholderText = fieldConfig.placeholder || '';
+            const disabledAttrBase = fieldConfig.disabled ? 'disabled' : '';
 
-            const placeholderText = fieldConfig.placeholder ||
-                (fieldConfig.label ? `Ingrese ${fieldConfig.label.toLowerCase().replace(/\s\(id\)/g, '')}` : '');
+            let generatedHTML = '';
 
-            let disabledAttrBase = fieldConfig.disabled ? 'disabled' : '';
+
+            if (fieldConfig.type === 'hidden') {
+                return `<input type="hidden" id="${fieldConfig.name}" name="${fieldConfig.name}" value="${currentValue}">`;
+            } 
+            
+            if (fieldConfig.type === 'display') {
+                return `
+                    <div class="form-group">
+                        <label>${fieldConfig.label}:</label>
+                        <input type="text" class="input-text" value="${fieldConfig.value}" disabled>
+                    </div>
+                `;
+            }
 
             if (fieldConfig.name === 'fecha') {
-                if (action === 'create' || action === 'edit') {
-                    disabledAttrBase = '';
-                }
-
-                if (action === 'create') {
-                    const now = new Date();
-                    const year = now.getFullYear();
-                    const month = String(now.getMonth() + 1).padStart(2, '0');
-                    const day = String(now.getDate()).padStart(2, '0');
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const minutes = String(now.getMinutes()).padStart(2, '0');
-                    currentValue = `${year}-${month}-${day}T${hours}:${minutes}`;
-                } else if (currentValue) {
+                // **AJUSTE DE FECHA PARA EDICIÓN**
+                if (currentValue) {
                     const date = new Date(currentValue);
                     const year = date.getFullYear();
                     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -677,76 +741,65 @@ export class AdminOrdenManager {
                     const hours = String(date.getHours()).padStart(2, '0');
                     const minutes = String(date.getMinutes()).padStart(2, '0');
                     currentValue = `${year}-${month}-${day}T${hours}:${minutes}`;
+                } else if (action === 'create') {
+                     // Solo establece la fecha actual si es CREACIÓN y no hay valor
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    currentValue = `${year}-${month}-${day}T${hours}:${minutes}`;
                 }
+                
+                 generatedHTML = `
+                    <div class="form-group">
+                        <label for="${fieldConfig.name}">${fieldConfig.label}:</label>
+                        <input type="datetime-local" class="input-text${numberClass}" id="${fieldConfig.name}" name="${fieldConfig.name}" value="${currentValue}" ${requiredAttr} ${stepAttr} ${disabledAttrBase}>
+                    </div>
+                `;
             }
-
-            if (fieldConfig.type === 'hidden') {
-                return `<input type="hidden" id="${fieldConfig.name}" name="${fieldConfig.name}" value="${currentValue}">`;
-            }
-
-            if (fieldConfig.name === 'id_usuario' && fieldConfig.type === 'select') {
-                const hiddenUserId = currentValue;
-
-                const ciLabel = 'Cédula de Identidad (CI) del Cliente';
-                const ciPlaceholder = 'Ingrese CI del cliente (ej: 1234567)';
-
-                const ciValue = action === 'edit' ? initialCiValue : '';
-                const requiredAttr = fieldConfig.required ? 'required' : '';
-
-                return `
-                    <div class="form-group ci-validation-wrapper">
-                        <label for="ci_cliente">${ciLabel}:</label>
-                        <input type="text" class="input-text" id="ci_cliente" name="ci_cliente" value="${ciValue}" ${requiredAttr} placeholder="${ciPlaceholder}">
+            
+            else if (fieldConfig.is_ci) {
+                const idUsuario = this.stepData.id_usuario || '';
+                
+                generatedHTML = `
+                    <div class="form-group grid-col-2 ci-validation-wrapper">
+                        <label for="${fieldConfig.name}">${fieldConfig.label}:</label>
+                        <input type="text" class="input-text" id="${fieldConfig.name}" name="${fieldConfig.name}" value="${currentValue}" ${requiredAttr} placeholder="${placeholderText}">
                         <div id="ci-validation-message" class="validation-message"></div>
-                        
-                        <input type="hidden" id="id_usuario" name="id_usuario" value="${hiddenUserId}">
+                        <input type="hidden" id="id_usuario" name="id_usuario" value="${idUsuario}">
                     </div>
                 `;
             }
 
-            if (fieldConfig.type === 'select') {
+            else if (fieldConfig.type === 'select') {
+                let optionsHTML = '';
+                const selectedValue = currentValue;
+                
+                if (fieldConfig.options_service) {
+                    let dependencyValue = fieldConfig.dependency ? this.stepData[fieldConfig.dependency] : null;
 
-                if (fieldConfig.dependency || fieldConfig.name.endsWith('_form') || fieldConfig.name === 'id_zona') {
-
-                    let dependencyValue = null;
-                    let selectedValue = currentValue;
-                    let initialOptionsHTML = '';
-
-                    if (action === 'edit' && addressHierarchy) {
-                        if (fieldConfig.name === 'id_departamento_form') {
-                            selectedValue = addressHierarchy.id_departamento;
-                        } else if (fieldConfig.name === 'id_municipio_form') {
-                            selectedValue = addressHierarchy.id_municipio;
-                            dependencyValue = addressHierarchy.id_departamento;
-                        } else if (fieldConfig.name === 'id_localidad_form') {
-                            selectedValue = addressHierarchy.id_localidad;
-                            dependencyValue = addressHierarchy.id_municipio;
-                        } else if (fieldConfig.name === 'id_zona') {
-                            selectedValue = addressHierarchy.id_zona;
-                            dependencyValue = addressHierarchy.id_localidad;
-                        }
-                    }
-
-                    const isFirstLevel = fieldConfig.name === 'id_departamento_form';
-                    const loadInitial = isFirstLevel || (action === 'edit' && dependencyValue !== null);
-
+                    const isFirstLevel = !fieldConfig.dependency;
+                    const loadInitial = isFirstLevel || dependencyValue; 
+                    
                     if (fieldConfig.options_service && loadInitial) {
-                        initialOptionsHTML = await this._loadSelectOptions(
+                        optionsHTML = await this._loadSelectOptions(
                             fieldConfig.options_service,
                             dependencyValue,
                             selectedValue
                         );
-                    } else if (fieldConfig.dependency) {
-                        const dependencyNameDisplay = fieldConfig.dependency.replace('_form', '').replace('id_', '').toUpperCase();
-
-                        initialOptionsHTML = `<option value="">-- Seleccionar primero ${dependencyNameDisplay} --</option>`;
+                    } else if (fieldConfig.dependency && !loadInitial) {
+                        const dependencyLabel = fieldConfig.dependency.replace('_form', '').replace('id_', '').toUpperCase();
+                        optionsHTML = `<option value="">-- Seleccionar primero ${dependencyLabel} --</option>`;
                     }
 
                     const isRequired = fieldConfig.required ? 'required' : '';
-                    const disabledClass = !isFirstLevel && dependencyValue === null && action !== 'edit' ? 'disabled-cascade' : '';
+                    // Usar el valor de this.stepData para determinar si deshabilitar si no hay dependencia cargada
+                    const disabledClass = !isFirstLevel && !dependencyValue ? 'disabled-cascade' : '';
                     const disabledAttr = disabledClass ? 'disabled' : '';
 
-                    return `
+                    generatedHTML = `
                         <div class="form-group cascade-select-wrapper">
                             <label for="${fieldConfig.name}">${fieldConfig.label}:</label>
                             <select id="${fieldConfig.name}" name="${fieldConfig.name}" 
@@ -757,54 +810,36 @@ export class AdminOrdenManager {
                                 ${fieldConfig.disabled || disabledAttr}
                             >
                                 <option value="">-- Seleccionar ${fieldConfig.label} --</option>
-                                ${initialOptionsHTML}
+                                ${optionsHTML}
+                            </select>
+                        </div>
+                    `;
+                    
+                } else { // Enums
+                    let optionsData = fieldConfig.options.map(val => ({ value: val, text: val.charAt(0).toUpperCase() + val.slice(1) }));
+                    
+                    optionsHTML = `<option value="">-- Seleccionar ${fieldConfig.label} --</option>`;
+
+                    optionsHTML += optionsData.map(option => {
+                        const isSelected = String(option.value).toLowerCase().trim() === String(selectedValue).toLowerCase().trim();
+                        return `<option value="${option.value}" ${isSelected ? 'selected' : ''}>${option.text}</option>`;
+                    }).join('');
+                    
+                    generatedHTML = `
+                        <div class="form-group">
+                            <label for="${fieldConfig.name}">${fieldConfig.label}:</label>
+                            <select id="${fieldConfig.name}" name="${fieldConfig.name}" class="input-select" ${requiredAttr} ${disabledAttrBase}>
+                                ${optionsHTML}
                             </select>
                         </div>
                     `;
                 }
 
-                let optionsData = [];
-                let optionsHTML = '';
-                const selectedValue = currentValue;
-
-                try {
-                    if (fieldConfig.is_enum) {
-                        optionsData = fieldConfig.options.map(val => ({ value: val, text: val.charAt(0).toUpperCase() + val.slice(1) }));
-                    } else if (fieldConfig.options_service) {
-                        const selectService = SERVICE_MAP[fieldConfig.options_service];
-                        if (selectService && selectService.getSelectOptions) {
-                            optionsData = await selectService.getSelectOptions();
-                        } else if (selectService && selectService.fetchData) {
-                            optionsData = await selectService.fetchData();
-                        }
-                    }
-                } catch (e) {
-                }
-
-                optionsHTML = `<option value="">-- Seleccionar ${fieldConfig.label} --</option>`;
-
-                optionsHTML += optionsData.map(option => {
-                    const value = option.value ?? option.id;
-                    const text = option.text ?? option.nombre;
-
-                    const isSelected = String(value).toLowerCase().trim() === String(selectedValue).toLowerCase().trim();
-
-                    return `<option value="${value}" ${isSelected ? 'selected' : ''}>${text}</option>`;
-                }).join('');
-
-                return `
-                    <div class="form-group">
-                        <label for="${fieldConfig.name}">${fieldConfig.label}:</label>
-                        <select id="${fieldConfig.name}" name="${fieldConfig.name}" class="input-select" ${requiredAttr} ${disabledAttrBase}>
-                            ${optionsHTML}
-                        </select>
-                    </div>
-                `;
             }
 
             else if (fieldConfig.type === 'textarea') {
-                return `
-                        <div class="form-group">
+                generatedHTML = `
+                        <div class="form-group grid-col-2">
                             <label for="${fieldConfig.name}">${fieldConfig.label}:</label>
                             <textarea class="input-textarea" id="${fieldConfig.name}" name="${fieldConfig.name}" placeholder="${placeholderText}" ${requiredAttr} ${disabledAttrBase}>${currentValue}</textarea>
                         </div>
@@ -812,177 +847,398 @@ export class AdminOrdenManager {
             }
 
             else {
-                return `
+                generatedHTML = `
                     <div class="form-group">
                         <label for="${fieldConfig.name}">${fieldConfig.label}:</label>
                         <input type="${fieldConfig.type}" class="input-text${numberClass}" id="${fieldConfig.name}" name="${fieldConfig.name}" value="${currentValue}" ${requiredAttr} ${stepAttr} placeholder="${placeholderText}" ${disabledAttrBase}>
                     </div>
                 `;
             }
+
+            return generatedHTML;
         });
 
-        const formFieldsHTML = await Promise.all(fieldPromises).then(results => results.join(''));
+        formHTML = await Promise.all(fieldPromises).then(results => results.join(''));
+        
+        return this._renderStepHeader() + formHTML + this._renderStepFooter(action);
+    }
+    
+    async _handleStepFormNavigation(action, id) {
+        const form = document.getElementById('step-form-body');
+        const formData = new FormData(form);
+        const currentStepConfig = this._getStepConfig()[this.currentStep];
+        
+        // 1. Recolectar datos del paso actual (SIEMPRE se hace primero para preservar los cambios)
+        for (const field of currentStepConfig.fields) {
+            const value = formData.get(field.name)?.trim() || '';
+            this.stepData[field.name] = value;
+        }
+        
+        // **CORRECCIÓN DE NAVEGACIÓN:** Si es 'prev', saltar validación y retroceder.
+        if (action === 'prev') {
+            this.currentStep--;
+            this.refreshForm(this.currentTable, this.stepData.crud_action, this.stepData.crud_id);
+            return;
+        }
 
-        const totalValue = action === 'edit' ? `Bs ${parseFloat(formData['total'] || 0).toFixed(2)}` : '0.00';
-        const totalDisplay = action === 'edit' ? `
-            <div class="form-group">
-                <label>Total de la Orden:</label>
-                <input type="text" class="input-text input-number" value="${totalValue}" disabled>
-                <small class="info-message">El total se calcula automáticamente con los ítems de la orden (no editable aquí).</small>
-            </div>
-        ` : '';
+        // --- Lógica de Validación y Avance (action === 'next' o Submit) ---
+        
+        // 2. Validación de campos obligatorios
+        let isValid = true;
+        let missingField = '';
+        for (const field of currentStepConfig.fields) {
+            // Se valida el valor de this.stepData que fue actualizado arriba
+            if (field.required && !this.stepData[field.name] && field.type !== 'hidden' && !field.name.endsWith('_display')) {
+                isValid = false;
+                missingField = field.label || field.name;
+                break;
+            }
+        }
 
-        const hiddenTotal = `<input type="hidden" name="total" value="${formData['total'] || '0.00'}">`;
+        if (!isValid) {
+            alert(`Por favor, complete el campo obligatorio: ${missingField}.`);
+            return; 
+        }
+        
+        // 3. Lógica de validación específica del paso 1 (CI)
+        if (this.currentStep === 1) {
+            const idUsuario = this.stepData.id_usuario;
+            const ci = this.stepData.ci_cliente;
+            
+            if (!ci || !idUsuario) {
+                alert('Debe ingresar y validar un CI que corresponda a un cliente existente. Utilice el campo CI y espere el mensaje de confirmación verde.');
+                return;
+            }
+        }
 
+        // 4. Avance
+        if (this.currentStep < this.maxSteps) {
+            this.currentStep++;
+            this.refreshForm(this.currentTable, this.stepData.crud_action, this.stepData.crud_id);
+        } else {
+            // Último paso: Enviar el formulario final
+            this.handleStepFormSubmit();
+        }
+    }
 
-        const formHTML = `
-            <form id="crud-form">
-                ${totalDisplay}
-                ${hiddenTotal}
-                ${formFieldsHTML}
-                <div class="form-footer">
-                    <button type="submit" class="btn-primary-modal">
-                        <i class="fas fa-save"></i> ${action === 'create' ? 'Crear' : 'Guardar Cambios'}
-                    </button>
-                    <button type="button" class="btn-cancel-modal" id="form-cancel-btn">Cancelar</button>
-                </div>
-            </form>
-        `;
+    _setupStepListeners(action, id) {
+        const nextButton = document.getElementById('btn-next-step');
+        const prevButton = document.getElementById('btn-prev-step');
+        const cancelButton = document.getElementById('form-cancel-btn');
 
-        this.modalBody.innerHTML = formHTML;
+        if (nextButton) {
+            // Asegurar que el botón está en estado normal al cargar el paso
+            const isLastStep = this.currentStep === this.maxSteps;
+            const text = action === 'create' ? 'Finalizar y Crear Orden' : 'Guardar Cambios';
+            this._toggleNextButtonLoading(this.isFormSubmitting && isLastStep, isLastStep ? text : 'Siguiente');
+            
+            nextButton.addEventListener('click', () => this._handleStepFormNavigation('next', id));
+        }
+        if (prevButton) {
+            prevButton.addEventListener('click', () => this._handleStepFormNavigation('prev', id));
+        }
+        if (cancelButton) {
+            cancelButton.addEventListener('click', () => this.modal.classList.remove('active'));
+        }
+        
+        if (this.currentStep === 1) {
+            this._setupCiValidationListener(action);
+        }
+        
+        if (this.currentStep === 2) {
+            this._setupCascadeListeners();
+        }
+        
+        // Listener para recolectar datos a medida que se cambian
+        document.getElementById('step-form-body')?.addEventListener('change', (e) => {
+             this.stepData[e.target.id] = e.target.value;
+        });
+        document.getElementById('step-form-body')?.addEventListener('input', (e) => {
+             this.stepData[e.target.id] = e.target.value;
+        });
+    }
 
+    _setupCiValidationListener(action) {
         const ciInput = document.getElementById('ci_cliente');
         const idUsuarioInput = document.getElementById('id_usuario');
         const ciMessage = document.getElementById('ci-validation-message');
 
-
-        if (ciInput && idUsuarioInput) {
-
-            if (action === 'edit' && ciInput.value.length > 0) {
-                ciMessage.textContent = '✅ CI cargado. Usuario encontrado (Para cambiar el cliente, ingrese un nuevo CI).';
-                ciMessage.style.color = '#28a745';
-            } else {
-                idUsuarioInput.value = '';
-            }
-
-            ciInput.addEventListener('input', () => {
-                clearTimeout(this.ciValidationTimeout);
-                const ci = ciInput.value.trim();
-
-                if (ci.length === 0) {
-                    ciMessage.textContent = '';
-                    idUsuarioInput.value = '';
-                    return;
-                }
-
-                if (ci.length < 5) {
-                    ciMessage.textContent = 'Ingrese al menos 5 dígitos para buscar.';
-                    ciMessage.style.color = '#ffc107';
-                    idUsuarioInput.value = '';
-                    return;
-                }
-
-                this.ciValidationTimeout = setTimeout(async () => {
-                    ciMessage.textContent = 'Buscando CI...';
-                    ciMessage.style.color = '#ffc107';
-
-                    try {
-                        const userId = await SERVICE_MAP['UsuarioService'].getIdByCi(ci);
-
-                        if (userId) {
-                            ciMessage.textContent = '✅ CI válido. Usuario encontrado.';
-                            ciMessage.style.color = '#28a745';
-                            idUsuarioInput.value = userId;
-                        } else {
-                            ciMessage.textContent = '❌ CI no encontrado en la base de datos.';
-                            ciMessage.style.color = '#dc3545';
-                            idUsuarioInput.value = '';
-                        }
-                    } catch (e) {
-                        ciMessage.textContent = `Error al buscar: ${e.message}`;
-                        ciMessage.style.color = '#dc3545';
-                        idUsuarioInput.value = '';
-                    }
-                }, 500);
-            });
+        if (!ciInput || !idUsuarioInput || !ciMessage) return;
+        
+        // **MEJORA MODO EDICIÓN:** Cargar estado inicial y mensaje de éxito si ya hay cliente
+        if (this.stepData.id_usuario && this.stepData.cliente_nombre) {
+            ciMessage.textContent = `✅ Cliente cargado: ${this.stepData.cliente_nombre}`;
+            ciMessage.style.color = '#28a745'; 
+            idUsuarioInput.value = this.stepData.id_usuario;
+        } else {
+            idUsuarioInput.value = '';
         }
 
-        this._setupCascadeListeners(action);
+        const runValidation = async (ci) => {
+            this._toggleNextButtonLoading(true, 'Validando CI...');
 
-        document.getElementById('crud-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleFormSubmit(tableName, action, id);
-        });
+            ciMessage.textContent = 'Buscando CI...';
+            ciMessage.style.color = '#ffc107';
+            idUsuarioInput.value = '';
 
-        document.getElementById('form-cancel-btn').addEventListener('click', () => {
-            this.modal.classList.remove('active');
+            try {
+                const userId = await SERVICE_MAP['UsuarioService'].getIdByCi(ci);
+
+                if (userId) {
+                    const userData = await SERVICE_MAP['UsuarioService'].getById(userId);
+                    const clienteNombre = `${userData.primer_nombre || ''} ${userData.apellido_paterno || ''}`.trim();
+                    
+                    ciMessage.textContent = `✅ CI válido. Cliente: ${clienteNombre}`;
+                    ciMessage.style.color = '#28a745';
+                    idUsuarioInput.value = userId;
+                    this.stepData.id_usuario = userId;
+                    this.stepData.cliente_nombre = clienteNombre;
+                } else {
+                    ciMessage.textContent = '❌ CI no encontrado en la base de datos.';
+                    ciMessage.style.color = '#dc3545';
+                    this.stepData.id_usuario = '';
+                    this.stepData.cliente_nombre = '';
+                }
+            } catch (e) {
+                ciMessage.textContent = `Error al buscar: ${e.message}`;
+                ciMessage.style.color = '#dc3545';
+                this.stepData.id_usuario = '';
+                this.stepData.cliente_nombre = '';
+            } finally {
+                 this._toggleNextButtonLoading(false);
+            }
+        };
+
+        ciInput.addEventListener('input', () => {
+            clearTimeout(this.ciValidationTimeout);
+            const ci = ciInput.value.trim();
+            this.stepData.ci_cliente = ci;
+
+            if (ci.length === 0) {
+                ciMessage.textContent = '';
+                idUsuarioInput.value = '';
+                this.stepData.id_usuario = '';
+                this.stepData.cliente_nombre = ''; // Resetear nombre también
+                this._toggleNextButtonLoading(false);
+                return;
+            }
+
+            if (ci.length < 5) {
+                ciMessage.textContent = 'Ingrese al menos 5 dígitos para buscar.';
+                ciMessage.style.color = '#ffc107';
+                idUsuarioInput.value = '';
+                this.stepData.id_usuario = '';
+                this.stepData.cliente_nombre = '';
+                this._toggleNextButtonLoading(false);
+                return;
+            }
+
+            this.ciValidationTimeout = setTimeout(() => runValidation(ci), 500);
         });
+        
+        // Si hay un CI inicial y es nuevo o edición, ejecutar la validación al cargar si aún no hay ID de usuario.
+        if (this.stepData.ci_cliente && !this.stepData.id_usuario) {
+            runValidation(this.stepData.ci_cliente);
+        }
     }
 
-    async handleFormSubmit(tableName, action, id = null) {
-        const form = document.getElementById('crud-form');
-        const formData = new FormData(form);
-        const service = SERVICE_MAP[tableName];
+    async refreshForm(tableName, action, id) {
+        this.modalBody.innerHTML = this.loadingHTML;
+        const contentHTML = await this._renderStepContent(action);
+        this.modalBody.innerHTML = contentHTML;
+        this._setupStepListeners(action, id);
+    }
+    
+    async showForm(tableName, action, id = null) {
+        this.currentTable = tableName;
+        this.modalTitle.textContent = action === 'create' ? 'Nueva Orden' : 'Editar Orden';
+        this.modal.classList.add('active');
+        
+        // Resetear estado del formulario por pasos
+        this.currentStep = 1;
+        this.isFormSubmitting = false;
+        
+        // Inicialización robusta de stepData
+        this.stepData = {
+            crud_action: action,
+            crud_id: id,
+            // Cliente
+            id_usuario: null,
+            ci_cliente: '',
+            cliente_nombre: '', 
+            // Orden
+            metodo_pago: 'EFECTIVO',
+            estado: 'PENDIENTE',
+            total: '0.00',
+            fecha: null,
+            // Dirección
+            id_direccion: null,
+            id_departamento_form: '', 
+            id_municipio_form: '', 
+            id_localidad_form: '', 
+            id_zona: '',
+            calle_avenida: '', 
+            numero_casa_edificio: '', 
+            referencia_adicional: '',
+        };
 
-        if (!service) return;
+        if (action === 'edit' && id) {
+            try {
+                const formData = await SERVICE_MAP[tableName].getById(id);
+                
+                // Cargar datos de la orden
+                this.stepData.total = formData.total || '0.00';
+                this.stepData.metodo_pago = formData.metodo_pago || 'EFECTIVO';
+                this.stepData.estado = formData.estado || 'PENDIENTE';
+                this.stepData.fecha = formData.fecha;
+                
+                // Cargar datos del cliente
+                this.stepData.id_usuario = formData.id_usuario;
+                this.stepData.ci_cliente = formData.u?.ci || '';
+                this.stepData.cliente_nombre = `${formData.u?.primer_nombre || ''} ${formData.u?.apellido_paterno || ''}`.trim();
+                
+                // **CORRECCIÓN DE CARGA DE DATOS DE DIRECCIÓN**
+                this.stepData.id_direccion = formData.id_direccion;
+                if (formData.direccion_data) {
+                    const d = formData.direccion_data;
+                    this.stepData.calle_avenida = d.calle_avenida || '';
+                    this.stepData.numero_casa_edificio = d.numero_casa_edificio || '';
+                    this.stepData.referencia_adicional = d.referencia_adicional || '';
+                }
+                
+                // Cargar ID's de jerarquía de dirección (CRUCIAL para selects anidados)
+                if (formData.addressHierarchy) {
+                    const h = formData.addressHierarchy;
+                    this.stepData.id_departamento_form = h.id_departamento || '';
+                    this.stepData.id_municipio_form = h.id_municipio || '';
+                    this.stepData.id_localidad_form = h.id_localidad || '';
+                    this.stepData.id_zona = h.id_zona || '';
+                } else if (formData.direccion_data && formData.direccion_data.id_zona) {
+                    // Cargar zona directamente si no se usó addressHierarchy (fallback)
+                    this.stepData.id_zona = formData.direccion_data.id_zona;
+                    
+                    // FALLBACK: Si solo tenemos la zona, intentamos cargar los IDs superiores desde LocalidadService
+                    if(formData.direccion_data.z?.id_localidad) {
+                        this.stepData.id_localidad_form = formData.direccion_data.z.id_localidad;
+                        if(formData.direccion_data.z.l?.id_municipio) {
+                            this.stepData.id_municipio_form = formData.direccion_data.z.l.id_municipio;
+                            if(formData.direccion_data.z.l.m?.id_departamento) {
+                                this.stepData.id_departamento_form = formData.direccion_data.z.l.m.id_departamento;
+                            }
+                        }
+                    }
+                }
+                // FIN CORRECCIÓN CARGA DE DATOS DE DIRECCIÓN
 
-
-        const id_usuario = formData.get('id_usuario')?.trim();
-        const ci_cliente = formData.get('ci_cliente')?.trim();
-        const metodo_pago = formData.get('metodo_pago')?.trim();
-        const estado = formData.get('estado')?.trim();
-
-        const id_zona = formData.get('id_zona')?.trim();
-        const calle_avenida = formData.get('calle_avenida')?.trim();
-        const numero_casa_edificio = formData.get('numero_casa_edificio')?.trim();
-
-        if (!ci_cliente || !metodo_pago || !estado) {
-            alert("Los campos obligatorios (CI del Cliente, Método de Pago y Estado) deben ser completados.");
-            return;
-        }
-        if (!id_usuario) {
-            alert("El CI ingresado no corresponde a un cliente existente. Por favor, valide el CI.");
-            return;
-        }
-
-        if (!id_zona || !calle_avenida || !numero_casa_edificio) {
-            alert("Debe completar todos los campos de la dirección (Zona, Calle/Av, Número de Casa/Edificio).");
-            return;
-        }
-
-        formData.delete('ci_cliente');
-        formData.delete('id_departamento_form');
-        formData.delete('id_municipio_form');
-
-        if (action === 'edit') {
-            const idDireccionAnterior = formData.get('id_direccion');
-            if (idDireccionAnterior) {
+            } catch (e) {
+                this.modalBody.innerHTML = `<p class="error-message">Error al cargar datos del registro. ${e.message}</p>`;
+                return;
             }
         }
+        
+        this.refreshForm(tableName, action, id);
+    }
 
-        if (action === 'create') {
-            formData.delete('id');
+    /**
+     * Reemplaza la lógica de guardar Dirección y Orden por separado (que fallaba) 
+     * con la lógica unificada del archivo anterior.
+     * Envía todos los datos de Orden y Dirección en un solo FormData al OrdenService.
+     */
+    async handleStepFormSubmit() {
+        if (this.isFormSubmitting) return;
+
+        this.isFormSubmitting = true;
+        const prevText = this.stepData.crud_action === 'create' ? 'Finalizar y Crear Orden' : 'Guardar Cambios';
+        this._toggleNextButtonLoading(true, 'Guardando...'); // Iniciar spinner
+
+        const service = SERVICE_MAP[this.currentTable];
+        const action = this.stepData.crud_action;
+        const id = this.stepData.crud_id;
+        
+        // --- VALIDACIÓN FINAL Y EXTRACCIÓN DE DATOS ---
+        const finalIdUsuario = String(this.stepData.id_usuario || '').trim();
+        const finalIdZona = String(this.stepData.id_zona || '').trim();
+        const finalCalle = String(this.stepData.calle_avenida || '').trim();
+        const finalMetodoPago = String(this.stepData.metodo_pago || '').trim();
+        const finalEstado = String(this.stepData.estado || '').trim();
+        const finalNumero = String(this.stepData.numero_casa_edificio || '').trim();
+
+
+        if (!finalIdUsuario) {
+            this.isFormSubmitting = false;
+            this._toggleNextButtonLoading(false, prevText);
+            alert("Error: El ID de Cliente es nulo. Por favor, valide el CI en el Paso 1.");
+            return;
         }
 
-        const finalPayload = {};
-        for (let pair of formData.entries()) {
-            finalPayload[pair[0]] = pair[1];
+        if (!finalMetodoPago || !finalEstado) {
+            this.isFormSubmitting = false;
+            this._toggleNextButtonLoading(false, prevText);
+            alert("Error: Faltan datos obligatorios de la Orden (Método de Pago o Estado).");
+            return;
         }
 
+        if (!finalIdZona || !finalCalle || !finalNumero) {
+            this.isFormSubmitting = false;
+            this._toggleNextButtonLoading(false, prevText);
+            alert("Error: La Dirección está incompleta. Faltan Zona, Calle/Avenida o Número de Casa/Edificio.");
+            return;
+        }
+        // --- FIN VALIDACIÓN ---
+
+
+        // 1. Crear el Payload Unificado
+        const ordenPayload = new FormData();
+        
+        // A. Datos de la ORDEN (Campos principales)
+        ordenPayload.append('id_usuario', finalIdUsuario);
+        ordenPayload.append('metodo_pago', finalMetodoPago);
+        ordenPayload.append('estado', finalEstado);
+        
+        // 🔑 CORRECCIÓN DEL ERROR 'invalid input syntax for type timestamp with time zone: ""'
+        // Solo adjuntar 'fecha' si tiene un valor, para evitar enviar la cadena vacía ("") a la DB.
+        if (this.stepData.fecha) {
+            ordenPayload.append('fecha', this.stepData.fecha);
+        }
+        
+        ordenPayload.append('total', this.stepData.total);
+        
+        // B. Datos de la DIRECCIÓN (El servicio de Orden los procesará)
+        ordenPayload.append('id_direccion', this.stepData.id_direccion); // Puede ser null/undefined si es nueva
+        ordenPayload.append('id_zona', finalIdZona);
+        ordenPayload.append('calle_avenida', finalCalle);
+        ordenPayload.append('numero_casa_edificio', finalNumero);
+        ordenPayload.append('referencia_adicional', this.stepData.referencia_adicional);
+        
+        
+        // **LOG DE DEPURACIÓN FINAL DE PAYLOAD**
+        const payloadDebug = {};
+        for (const [key, value] of ordenPayload.entries()) {
+            payloadDebug[key] = value;
+        }
+        console.log("[SUBMIT] Payload UNIFICADO enviado a OrdenService:", payloadDebug);
+        // ------------------------------------------
 
         try {
             if (action === 'create') {
-                await service.create(formData);
-                alert(`Registro creado con éxito!`);
+                console.log("[SUBMIT] Llamando a OrdenService.create con payload unificado.");
+                await service.create(ordenPayload);
+                alert(`Orden creada con éxito!`);
             } else {
-                await service.update(id, formData);
-                alert(`Registro actualizado con éxito!`);
+                console.log("[SUBMIT] Llamando a OrdenService.update con payload unificado. ID:", id);
+                await service.update(id, ordenPayload);
+                alert(`Orden actualizada con éxito!`);
             }
 
             this.modal.classList.remove('active');
             this.loadTable();
         } catch (error) {
-            alert(`Error al guardar: ${error.message}`);
+            this.isFormSubmitting = false;
+            this._toggleNextButtonLoading(false, prevText);
+            console.error("[SUBMIT ERROR] Error en OrdenService:", error);
+            alert(`Error al guardar la Orden: ${error.message}. Por favor, revise la consola para más detalles.`);
+        } finally {
+             this.isFormSubmitting = false;
         }
     }
 }

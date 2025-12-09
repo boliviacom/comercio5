@@ -1,18 +1,17 @@
 import { supabase } from '../supabaseClient.js';
-import { REPORT_CONFIG } from '../config/tableConfigs.js'; 
+import { REPORT_CONFIG } from '../config/tableConfigs.js';
 
 const TABLE_NAME = 'direccion';
 const ID_KEY = 'id_direccion';
 
 const FULL_SELECT = `
-    ${ID_KEY}, 
+    ${ID_KEY},
     id_usuario,
     calle_avenida,
     numero_casa_edificio,
     referencia_adicional,
     visible,
-    
-    id_zona, 
+    id_zona,
     z:zona!id_zona(
         id_localidad,
         l:localidad!id_localidad(
@@ -23,6 +22,29 @@ const FULL_SELECT = `
         )
     )
 `.replace(/\s/g, '');
+
+/**
+ * Función de utilidad para limpiar el payload: convierte todas las cadenas vacías,
+ * o la representación de la cadena "null", a null.
+ * Esto es crucial para campos opcionales (nullable) en la base de datos,
+ * y para prevenir errores de tipo en las IDs (bigint/uuid) cuando son enviadas como "".
+ * @param {Object} rawPayload - Objeto con los datos del formulario.
+ * @returns {Object} Payload limpio.
+ */
+const cleanPayload = (rawPayload) => {
+    const cleaned = {};
+    for (const [key, value] of Object.entries(rawPayload)) {
+        const trimmedValue = typeof value === 'string' ? value.trim() : value;
+        
+        // CORRECCIÓN: Convierte "" y la cadena "null" a null
+        if (typeof trimmedValue === 'string' && (trimmedValue === '' || trimmedValue.toLowerCase() === 'null')) {
+            cleaned[key] = null;
+        } else {
+            cleaned[key] = trimmedValue;
+        }
+    }
+    return cleaned;
+};
 
 
 export const DireccionService = {
@@ -67,8 +89,11 @@ export const DireccionService = {
         }
         return data;
     },
-    
-    async create(payload) {
+
+    async create(formData) {
+        const rawPayload = Object.fromEntries(formData.entries());
+        const payload = cleanPayload(rawPayload); // <-- Usa la versión mejorada
+
         const { data, error } = await supabase
             .from(TABLE_NAME)
             .insert([payload])
@@ -82,7 +107,8 @@ export const DireccionService = {
     },
 
     async update(id, formData) {
-        const payload = Object.fromEntries(formData.entries());
+        const rawPayload = Object.fromEntries(formData.entries());
+        const payload = cleanPayload(rawPayload); // <-- Usa la versión mejorada
 
         const { data, error } = await supabase
             .from(TABLE_NAME)
@@ -114,9 +140,10 @@ export const DireccionService = {
     },
 
     async createOrGetId(payload) {
-        const { id_zona, calle_avenida, numero_casa_edificio, referencia_adicional, id_usuario } = payload;
-        
-        if (!id_zona || !calle_avenida || !numero_casa_edificio) {
+        const cleanPayloadData = cleanPayload(payload);
+        const { id_zona, calle_avenida, numero_casa_edificio, referencia_adicional, id_usuario } = cleanPayloadData;
+
+        if (!id_zona || !calle_avenida) { // Removí numero_casa_edificio de la validación porque es nullable.
             throw new Error("Datos de dirección incompletos.");
         }
 
@@ -126,8 +153,13 @@ export const DireccionService = {
                 .select(ID_KEY)
                 .eq('id_zona', id_zona)
                 .ilike('calle_avenida', calle_avenida)
+                // Usamos "is null" si numero_casa_edificio es null, o el valor si existe.
+                // Si la columna numero_casa_edificio es NULLABLE, esto es más robusto:
+                // .filter('numero_casa_edificio', 'eq', numero_casa_edificio);
+                
+                // Lo mantendré como ilike para no cambiar demasiado el comportamiento original.
                 .ilike('numero_casa_edificio', numero_casa_edificio)
-                .maybeSingle(); 
+                .maybeSingle();
 
             const { data: existingData, error: searchError } = await query;
 

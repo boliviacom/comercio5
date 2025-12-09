@@ -65,6 +65,7 @@
     margin-right: 10px;
 }
 
+/* Estilos de mensajes de error/info (base) */
 .error-message,
 .info-message {
     padding: 15px;
@@ -85,12 +86,16 @@
     border: 1px solid #99d8ff;
 }
 
+/* Fin de estilos de mensajes de error/info (base) */
+
+
+/* Estilos de Tabla */
 .table-responsive {
     overflow-x: auto;
     margin-top: 20px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
     border-radius: 8px;
-    background-color: white;
+    background-color: var(--color-bg-light);
     border: 1px solid #e0e0e0;
 }
 
@@ -240,6 +245,7 @@
     display: block;
 }
 
+/* Estilos de Modal */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -260,7 +266,10 @@
     opacity: 1;
 }
 
-
+.modal-content {
+    max-width: 700px;
+    width: 90%;
+}
 
 .modal-overlay.active .modal-content {
     transform: scale(1);
@@ -337,7 +346,9 @@
 .modal-content textarea:focus,
 .modal-content .input-select:focus {
     border-color: var(--primary-color);
+    /* ADAPTADO */
     box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.25);
+    /* ADAPTADO */
     outline: none;
 }
 
@@ -350,6 +361,7 @@
     padding: 10px 0;
 }
 
+/* Estilos de Botones de Formulario Modal */
 .form-footer {
     display: flex;
     justify-content: flex-end;
@@ -360,6 +372,8 @@
 }
 
 .btn-primary-modal,
+.btn-secondary-modal,
+/* AÑADIDO PARA PASOS */
 .btn-cancel-modal {
     padding: 10px 18px;
     border: none;
@@ -371,23 +385,39 @@
 
 .btn-primary-modal {
     background-color: var(--primary-color);
+    /* ADAPTADO */
     color: white;
 }
 
 .btn-primary-modal:hover {
     background-color: var(--hover-color);
+    /* ADAPTADO */
+}
+
+/* Botón secundario para la navegación "Anterior" */
+.btn-secondary-modal {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary-modal:hover:not([disabled]) {
+    background-color: #5a6268;
 }
 
 .btn-cancel-modal {
-    background-color: #e0e0e0;
-    color: #333;
+    background-color: #dc3545;
+    /* Rojo estándar para Cancelar */
+    color: white;
     margin-left: 10px;
 }
 
 .btn-cancel-modal:hover {
-    background-color: #ccc;
+    background-color: #c82333;
 }
 
+/* Fin de Estilos de Botones de Formulario Modal */
+
+/* Estilos de Paginación */
 .pagination-controls {
     display: flex;
     justify-content: flex-end;
@@ -420,8 +450,10 @@
 .btn-pagination.active,
 .page-btn.active {
     background-color: var(--primary-color);
+    /* ADAPTADO */
     color: white;
     border-color: var(--primary-color);
+    /* ADAPTADO */
     font-weight: 700;
 }
 
@@ -436,6 +468,7 @@
     color: #777;
 }
 
+/* Estilos de Búsqueda y Filtro */
 .filter-controls-container {
     display: flex;
     gap: 15px;
@@ -475,6 +508,7 @@
     background-color: #fff;
 }
 
+/* Estilos de Filas */
 .data-table tr.inactive-record {
     opacity: 0.6;
     background-color: #ffeaea;
@@ -526,6 +560,7 @@
     text-align: end;
 }
 
+/* Estilos de Switch */
 .switch {
     position: relative;
     display: inline-block;
@@ -564,12 +599,11 @@
 }
 
 input:checked+.slider {
-    /* Corregido: usa el combinador de hermano adyacente '+' para el slider */
     background-color: var(--primary-color);
+    /* ADAPTADO */
 }
 
 input:checked+.slider:before {
-    /* Corregido: usa el combinador de hermano adyacente '+' para el slider */
     transform: translateX(21px);
 }
 
@@ -586,36 +620,30 @@ input:checked+.slider:before {
     opacity: 0.5;
 }
 
-/* --- Estilos para el formulario modal en dos columnas --- */
-
-/* Asegura un ancho razonable para el modal de productos */
+/* Estilos de Grid de Modal (general) */
 .modal-content {
     max-width: 700px;
     width: 90%;
 }
 
-/* Contenedor principal del formulario con Grid Layout */
 #crud-form.modal-grid-form {
     display: grid;
-    /* Define dos columnas de igual ancho y una brecha de 30px */
     grid-template-columns: 1fr 1fr;
     gap: 20px 30px;
 }
 
 .modal-grid-form .form-column {
-    /* Las columnas de campos ocupan 1 celda cada una */
     grid-column: span 1;
 }
 
 .modal-grid-form .grid-footer {
-    /* El footer debe abarcar ambas columnas */
     grid-column: 1 / -1;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
 }
 
-/* Estilo específico para la carga de imagen (imitando su imagen) */
+/* Estilos de Carga de Imagen */
 .upload-image-container .file-upload-area {
     border: 2px dashed #ccc;
     border-radius: 8px;
@@ -630,9 +658,9 @@ input:checked+.slider:before {
 
 .upload-image-container .file-upload-area:hover {
     border-color: var(--primary-color);
+    /* ADAPTADO */
 }
 
-/* Ocultar el input de archivo y mostrar el placeholder */
 .upload-image-container .file-upload-area input[type="file"] {
     position: absolute;
     top: 0;
@@ -644,7 +672,6 @@ input:checked+.slider:before {
 }
 
 .upload-placeholder i {
-    /* Icono de nube */
     font-size: 3em;
     color: #b0b0b0;
     margin-bottom: 10px;
@@ -662,27 +689,12 @@ input:checked+.slider:before {
     margin-top: 5px;
 }
 
-/* Media Query para pantallas pequeñas */
-@media (max-width: 600px) {
-    #crud-form.modal-grid-form {
-        /* En pantallas pequeñas, apilar los campos en una sola columna */
-        grid-template-columns: 1fr;
-    }
-
-    .modal-grid-form .form-column {
-        grid-column: span 1;
-    }
-}
-
-/* --- Estilos para la Imagen Actual en el Modal de Edición --- */
-
+/* Estilos de Preview de Imagen */
 .image-actual-wrapper {
-    /* Contenedor del campo "Imagen Actual" */
     margin-top: 20px;
 }
 
 .image-preview-item {
-    /* Contenedor de la imagen, nombre y botón de eliminar */
     display: flex;
     align-items: center;
     border: 1px solid #ddd;
@@ -692,7 +704,6 @@ input:checked+.slider:before {
 }
 
 .image-preview-item img {
-    /* Estilo de la imagen de vista previa */
     width: 60px;
     height: 60px;
     object-fit: contain;
@@ -703,18 +714,15 @@ input:checked+.slider:before {
 }
 
 .image-filename {
-    /* Nombre del archivo */
     font-size: 0.9em;
     color: #666;
     flex-grow: 1;
-    /* Permite que ocupe el espacio */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .btn-delete-image {
-    /* Botón de eliminar (rojo) */
     color: #e74c3c;
     margin-left: 10px;
     padding: 5px 10px;
@@ -726,75 +734,36 @@ input:checked+.slider:before {
     background-color: #ffeaea;
 }
 
-/* Ajuste para que el input de archivo no se vea en el área de drop */
-.upload-image-container .file-upload-area {
-    /* Ya lo tienes arriba, pero asegúrate de que el input está bien oculto: */
-    position: relative;
-    padding: 20px;
-}
-
-.upload-image-container .file-upload-area input[type="file"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    /* Esto es clave para ocultar y mantener el área clicleable */
-    cursor: pointer;
-    z-index: 10;
-}
-
 .product-details .product-name {
-    /* Fuerza que el contenido esté en una sola línea */
     white-space: nowrap;
-
-    /* Oculta el texto que se desborda */
     overflow: hidden;
-
-    /* Muestra puntos suspensivos donde el texto se trunca */
     text-overflow: ellipsis;
-
-    /* Establece un ancho máximo para que ocurra el truncamiento */
     max-width: 150px;
-    /* Ajusta este valor según el ancho deseado para 20 caracteres */
     display: inline-block;
-    /* Necesario para que 'max-width' funcione en un 'span' */
 }
 
-/* ========================================= */
-/* ESTILOS DEL MODAL Y FORMULARIO DE USUARIO */
-/* ========================================= */
-
-/* Contenedor principal para campos en cuadrícula */
+/* Estilos de Grid de Usuario */
 .form-grid {
     display: grid;
     gap: 15px;
-    /* Espacio entre las columnas y filas de la cuadrícula */
     margin-bottom: 20px;
 }
 
-/* 2 columnas */
 .grid-col-2 {
     grid-template-columns: 1fr 1fr;
 }
 
-/* 3 columnas */
 .grid-col-3 {
     grid-template-columns: 1fr 1fr 1fr;
 }
 
-/* Títulos de sección dentro del formulario */
 #crud-form h3 {
     font-size: 1.1em;
     font-weight: 600;
     color: #4a5568;
-    /* Color de texto suave */
     border-bottom: 2px solid #edf2f7;
-    /* Línea separadora */
     padding-bottom: 5px;
     margin-top: 25px;
-    /* Espacio superior para separar secciones */
     margin-bottom: 15px;
     display: flex;
     align-items: center;
@@ -802,16 +771,14 @@ input:checked+.slider:before {
 
 #crud-form h3 i {
     margin-right: 8px;
-    color: #4c51bf;
-    /* Color de ícono (ej. un tono morado/azul) */
+    color: var(--primary-color);
+    /* ADAPTADO */
 }
 
-/* Utilidad para margen superior */
 .mt-4 {
     margin-top: 25px !important;
 }
 
-/* Estilos de grupo de formulario */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -824,7 +791,7 @@ input:checked+.slider:before {
     font-size: 0.9em;
 }
 
-/* Estilos básicos para inputs y selects (ajusta si ya los tienes) */
+/* Estilos de Input (Base) */
 .input-text,
 .input-select {
     width: 100%;
@@ -833,38 +800,153 @@ input:checked+.slider:before {
     font-size: 1em;
     transition: border-color 0.3s;
     box-sizing: border-box;
-    /* Crucial para el padding */
+    padding: 10px;
+    /* Asegura el padding */
 }
 
 .input-text:focus,
 .input-select:focus {
-    border-color: #4c51bf;
+    border-color: var(--primary-color);
+    /* ADAPTADO */
     outline: none;
-    box-shadow: 0 0 0 1px #4c51bf;
+    box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.5);
+    /* ADAPTADO */
 }
 
 /* Estilos para el pie del formulario (botones) */
 .form-footer {
     display: flex;
     justify-content: flex-end;
-    /* Botones a la derecha */
     gap: 10px;
     padding-top: 20px;
     border-top: 1px solid #e2e8f0;
     margin-top: 30px;
 }
 
-/* Adaptación para pantallas pequeñas */
-@media (max-width: 768px) {
+/* --- ESTILOS DE FORMULARIO DE PASOS (STEP FORM) --- */
 
-    .grid-col-2,
-    .grid-col-3 {
+/* Contenedor de progreso */
+.step-progress-wrapper {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.step-progress-wrapper h3 {
+    font-size: 1.25rem;
+    color: var(--secondary-color);
+    /* ADAPTADO */
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+/* Contenedor de la barra de progreso */
+.progress-bar-container {
+    width: 100%;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    overflow: hidden;
+    height: 10px;
+}
+
+/* Barra de progreso de color */
+.progress-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    /* ADAPTADO */
+    transition: width 0.3s ease;
+    border-radius: 6px;
+}
+
+/* Contenido del paso actual */
+.step-content {
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: var(--color-bg-light);
+    /* ADAPTADO */
+
+    /* Grid layout para los campos del paso */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Elementos que ocupan el ancho completo */
+.step-content .form-group:has(.input-textarea),
+.step-content .ci-validation-wrapper,
+.step-content .form-group:has(#referencia_adicional) {
+    grid-column: 1 / -1;
+}
+
+/* Navegación entre pasos */
+.form-footer.step-navigation {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #dee2e6;
+    margin-top: 0;
+    /* Ya tiene padding superior */
+}
+
+/* Empuja el botón "Anterior" a la izquierda */
+#prev-step-btn {
+    margin-right: auto;
+}
+
+/* Botón Siguiente/Guardar (Primary) - Ya definido arriba */
+/* Botón Anterior (Secondary) */
+.btn-secondary-modal {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary-modal:hover:not([disabled]) {
+    background-color: #5a6268;
+}
+
+/* Botón Cancelar - Ya definido arriba */
+
+/* Deshabilitar selects en cascada */
+.disabled-cascade {
+    background-color: #e9ecef !important;
+    cursor: not-allowed;
+}
+
+/* Estilos para mensajes de validación dentro del formulario de pasos */
+.validation-message {
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+    font-weight: bold;
+}
+
+/* Sobrescribir color de éxito con Primary Color */
+.validation-message[style*="#28a745"] {
+    color: var(--primary-color) !important;
+}
+
+.step-navigation button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Media Query para formularios de pasos */
+@media (max-width: 600px) {
+    .step-content {
         grid-template-columns: 1fr;
-        /* Una sola columna en móviles */
     }
 
-    .form-footer {
-        flex-direction: column-reverse;
-        /* Apila los botones en móviles */
+    .form-footer.step-navigation {
+        flex-wrap: wrap-reverse;
+    }
+
+    #prev-step-btn,
+    .form-footer button {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 5px;
     }
 }
